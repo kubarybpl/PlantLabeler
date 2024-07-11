@@ -39,8 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     //Ustawianie
     setCentralWidget(centralWidget);
 
-    connect(leftWidget, &leftPanel::imageSelected, this, &MainWindow::displayImage);
-//    connect(leftWidget, &leftPanel::imageSelected, this, &MainWindow::loadImage);
+//    connect(leftWidget, &leftPanel::imageSelected, this, &MainWindow::displayImage);
+    connect(leftWidget, &leftPanel::imageSelected, scene, &interactiveScene::setImageItem);
 
     connect(toolBox, &rightPanel::undoSignal, scene, &interactiveScene::undo);
     connect(toolBox, &rightPanel::redoSignal, scene, &interactiveScene::redo);
@@ -48,11 +48,12 @@ MainWindow::MainWindow(QWidget *parent)
 }
 // Definicja slotu displayImage
 MainWindow::displayImage(const QString &imagePath) {
-    scene->clear();
-    QPixmap image(imagePath);
-    QGraphicsPixmapItem *item = scene->addPixmap(image);
-    scene->setImageItem(item);
-    scene->setSceneRect(image.rect());
+//    scene->clear();
+//    QPixmap image(imagePath);
+//    QGraphicsPixmapItem *item = scene->addPixmap(image);
+//    scene->setImageItem(item);
+//    scene->setSceneRect(image.rect());
+
 }
 
 MainWindow::~MainWindow()

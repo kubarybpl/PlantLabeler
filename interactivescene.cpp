@@ -1,19 +1,65 @@
-//test
 #include "interactivescene.h"
+#include <QPainter>
 
 interactiveScene::interactiveScene(QObject *parent = nullptr)
-    : QGraphicsScene(parent), isDrawing(0), currentPath(nullptr), image(nullptr), myPenWidth(5), myPenColor(Qt::black),
+    : QGraphicsScene(parent), isDrawing(0), currentPath(nullptr), image(nullptr),  frontItem(nullptr),myPenWidth(5), myPenColor(Qt::black),
     modified(false)
 {
 
 }
 
-void interactiveScene::setImageItem(QGraphicsPixmapItem *item)
+//void interactiveScene::setImageItem(QGraphicsPixmapItem *item)
+//{
+
+//    image = item;
+//    //    item->setVisible(false);
+//}
+
+void interactiveScene::setImageItem(const QString &imagePath)
+{
+    this->clear();
+    QPixmap pixmapBackground(imagePath);
+//    QGraphicsPixmapItem *item = this->addPixmap(QPixmap(imagePath));
+    image = this->addPixmap(QPixmap(imagePath));
+    this->setSceneRect(pixmapBackground.rect());
+
+    front = QPixmap(this->width(),this->height());
+    front.fill(Qt::transparent);
+    frontItem = this->addPixmap(front);
+
+}
+
+
+void interactiveScene::undo()
 {
 
-    image = item;
-//    item->setVisible(false);
 }
+
+void interactiveScene::redo()
+{
+
+}
+
+void interactiveScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+//    pixmap = frontItem->pixmap();
+    QPainter painter(&front);
+    painter.setPen(QPen(Qt::red, 5));
+    painter.drawEllipse(event->scenePos(), 10, 10);
+}
+
+void interactiveScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+
+}
+
+void interactiveScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    frontItem->setPixmap(front);
+}
+
+
+/*
 
 void interactiveScene::undo()
 {
@@ -77,3 +123,4 @@ void interactiveScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         undoStack.push(currentPath);
     }
 }
+*/

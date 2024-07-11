@@ -16,7 +16,8 @@ class interactiveScene : public QGraphicsScene
     Q_OBJECT
 public:
     interactiveScene(QObject *parent);
-    void setImageItem(QGraphicsPixmapItem *item);
+//    void setImageItem(QGraphicsPixmapItem *item);
+    void setImageItem(const QString &imagePath);
     void undo();
     void redo();
 protected:
@@ -31,6 +32,8 @@ private:
     bool isDrawing;
     QGraphicsPathItem *currentPath;
     QGraphicsPixmapItem *image;
+    QGraphicsPixmapItem *frontItem;
+    QPixmap front;
     QStack<QGraphicsItem*> undoStack;
     QStack<QGraphicsItem*> redoStack;
     int myPenWidth;
