@@ -34,8 +34,8 @@ private:
     QGraphicsPixmapItem *image;
     QGraphicsPixmapItem *frontItem;
     QPixmap front;
-    QStack<QGraphicsItem*> undoStack;
-    QStack<QGraphicsItem*> redoStack;
+    QStack<QPixmap> undoStack;
+    QStack<QPixmap> redoStack;
     int myPenWidth;
     QColor myPenColor;
 

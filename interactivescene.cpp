@@ -33,17 +33,31 @@ void interactiveScene::setImageItem(const QString &imagePath)
 
 void interactiveScene::undo()
 {
-
+    if(!undoStack.isEmpty()){
+        QPixmap item = undoStack.pop();
+        redoStack.push(front);
+//        frontItem->setPixmap(item);
+        front = item;
+        frontItem->setPixmap(front);
+    }
 }
 
 void interactiveScene::redo()
 {
-
+    if(!redoStack.isEmpty()){
+        QPixmap item = redoStack.pop();
+//        frontItem->setPixmap(item);
+        undoStack.push_back(front);
+        front = item;
+        frontItem->setPixmap(front);
+    }
 }
 
 void interactiveScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton){
+        undoStack.push_back(front);
+
         QPainter painter(&front);
         painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         painter.drawPoint(event->scenePos());
@@ -70,6 +84,7 @@ void interactiveScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if(event->button() == Qt::LeftButton && isDrawing){
         frontItem->setPixmap(front);
         isDrawing = false;
+        redoStack.clear();
     }
 }
 
