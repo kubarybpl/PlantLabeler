@@ -39,7 +39,7 @@ private:
     int myPenWidth;
     QColor myPenColor;
 
-    QPoint lastPoint;
+    QPointF lastPoint;
     bool modified;
 };
 

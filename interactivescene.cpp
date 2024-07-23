@@ -1,5 +1,6 @@
 #include "interactivescene.h"
 #include <QPainter>
+#include <qdebug.h>
 
 interactiveScene::interactiveScene(QObject *parent = nullptr)
     : QGraphicsScene(parent), isDrawing(0), currentPath(nullptr), image(nullptr),  frontItem(nullptr),myPenWidth(5), myPenColor(Qt::black),
@@ -42,20 +43,34 @@ void interactiveScene::redo()
 
 void interactiveScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-//    pixmap = frontItem->pixmap();
-    QPainter painter(&front);
-    painter.setPen(QPen(Qt::red, 5));
-    painter.drawEllipse(event->scenePos(), 10, 10);
+    if(event->button() == Qt::LeftButton){
+        QPainter painter(&front);
+        painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter.drawPoint(event->scenePos());
+        frontItem->setPixmap(front);
+
+        lastPoint = event->scenePos();
+        isDrawing = true;
+    }
 }
 
 void interactiveScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-
+    if((event->buttons() & Qt::LeftButton) && isDrawing){
+        QPainter painter(&front);
+        painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter.drawLine(lastPoint, event->scenePos().toPoint());
+        frontItem->setPixmap(front);
+        lastPoint = event->scenePos();
+    }
 }
 
 void interactiveScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    frontItem->setPixmap(front);
+    if(event->button() == Qt::LeftButton && isDrawing){
+        frontItem->setPixmap(front);
+        isDrawing = false;
+    }
 }
 
 
