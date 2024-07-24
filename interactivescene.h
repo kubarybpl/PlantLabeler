@@ -20,6 +20,9 @@ public:
     void setImageItem(const QString &imagePath);
     void undo();
     void redo();
+public slots:
+    void setColor(QString color);
+
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;

@@ -16,14 +16,21 @@ public:
     ~rightPanel();
 private:
     QSlider *brushSizeSlider;
-    QComboBox *colorComboBox;
     QPushButton *undo;
     QPushButton *redo;
     QPushButton *nextButton;
+    QPushButton *dirtButton;
+    QPushButton *plantButton;
+    QPushButton *weedButton;
+private slots:
+    colorClicked();
 signals:
+    void colorSignal(const QString &colorName);
     undoSignal();
     redoSignal();
-
+    dirtSignal();
+    plantSignal();
+    weedSignal();
 };
 
 #endif // RIGHTPANEL_H

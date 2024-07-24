@@ -92,7 +92,7 @@ leftPanel::onVideoButton()
             frameCount++;
         }
         video.release();
-        qDebug() << "wyszło z łapania klatek";
+//        qDebug() << "wyszło z łapania klatek";
     }
 }
 

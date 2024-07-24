@@ -39,8 +39,9 @@ MainWindow::MainWindow(QWidget *parent)
     //Ustawianie
     setCentralWidget(centralWidget);
 
-//    connect(leftWidget, &leftPanel::imageSelected, this, &MainWindow::displayImage);
     connect(leftWidget, &leftPanel::imageSelected, scene, &interactiveScene::setImageItem);
+
+    connect(toolBox, &rightPanel::colorSignal,  scene, &interactiveScene::setColor);
 
     connect(toolBox, &rightPanel::undoSignal, scene, &interactiveScene::undo);
     connect(toolBox, &rightPanel::redoSignal, scene, &interactiveScene::redo);
