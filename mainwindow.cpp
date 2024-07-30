@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(leftWidget, &leftPanel::imageSelected, scene, &interactiveScene::setImageItem);
 
     connect(toolBox, &rightPanel::colorSignal,  scene, &interactiveScene::setColor);
+    connect(toolBox, &rightPanel::visibilitySignal,  scene, &interactiveScene::setVisibility);
+    connect(scene, &interactiveScene::changeButton, toolBox, &rightPanel::changeButton);
 
     connect(toolBox, &rightPanel::undoSignal, scene, &interactiveScene::undo);
     connect(toolBox, &rightPanel::redoSignal, scene, &interactiveScene::redo);

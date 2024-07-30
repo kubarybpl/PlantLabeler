@@ -14,6 +14,7 @@ class rightPanel : public QWidget
 public:
     rightPanel(QWidget *parent);
     ~rightPanel();
+
 private:
     QSlider *brushSizeSlider;
     QPushButton *undo;
@@ -22,10 +23,19 @@ private:
     QPushButton *dirtButton;
     QPushButton *plantButton;
     QPushButton *weedButton;
+    QPushButton *maskVisibiltyButton;
+    QPushButton *backgroundVisibilityButton;
+
+public slots:
+    changeButton(QString &msg);
+
 private slots:
     colorClicked();
+    toggleView();
+
 signals:
     void colorSignal(const QString &colorName);
+    void visibilitySignal(const QString &visibility);
     undoSignal();
     redoSignal();
     dirtSignal();

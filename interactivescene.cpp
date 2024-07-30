@@ -19,18 +19,29 @@ void interactiveScene::setImageItem(const QString &imagePath)
     front = QPixmap(this->width(),this->height());
     front.fill(Qt::transparent);
     frontItem = this->addPixmap(front);
-    frontItem->setOpacity(0.2);
+    frontItem->setOpacity(0.3);
 
 }
 
 void interactiveScene::setColor(const QString color)
 {
     if (color == "Ziemia") {
-        myPenColor = QColor(160,82,45);
+        myPenColor = QColor(121, 92, 50);
     } else if (color == "Roślina") {
         myPenColor = QColor(Qt::green);
     } else if (color == "Chwast") {
         myPenColor = QColor(Qt::red);
+    }
+}
+
+void interactiveScene::setVisibility(QString visibility)
+{
+    if(image){
+        if (visibility == "Ukryj maskę") frontItem->setVisible(0);
+        else if (visibility == "Pokaż maskę") frontItem->setVisible(1);
+        else if (visibility == "Ukryj tło") image->setVisible(0);
+        else if (visibility == "Pokaż tło") image->setVisible(1);
+        emit changeButton(visibility);
     }
 }
 
@@ -58,7 +69,7 @@ void interactiveScene::redo()
 
 void interactiveScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton){
+    if(event->button() == Qt::LeftButton && image){
         undoStack.push_back(front);
 
         QPainter painter(&front);

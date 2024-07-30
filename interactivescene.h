@@ -22,7 +22,7 @@ public:
     void redo();
 public slots:
     void setColor(QString color);
-
+    void setVisibility(QString visibility);
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
@@ -44,6 +44,9 @@ private:
 
     QPointF lastPoint;
     bool modified;
+
+signals:
+    void changeButton(QString &msg);
 };
 
 #endif // INTERACTIVESCENE_H
