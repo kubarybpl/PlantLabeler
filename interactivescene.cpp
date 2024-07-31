@@ -1,17 +1,22 @@
 #include "interactivescene.h"
 #include <QPainter>
 #include <qdebug.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <QString>
+
+using namespace cv;
 
 interactiveScene::interactiveScene(QObject *parent = nullptr)
-    : QGraphicsScene(parent), isDrawing(0), currentPath(nullptr), image(nullptr),  frontItem(nullptr),myPenWidth(5), myPenColor(Qt::red),
+    : QGraphicsScene(parent), isDrawing(0), image(nullptr),  frontItem(nullptr),myPenWidth(5), myPenColor(Qt::red),
     modified(false)
-{
-
-}
+{}
 
 void interactiveScene::setImageItem(const QString &imagePath)
 {
+    qDebug() << imagePath;
     this->clear();
+    currentPath = imagePath;
     QPixmap pixmapBackground(imagePath);
     image = this->addPixmap(QPixmap(imagePath));
     this->setSceneRect(pixmapBackground.rect());
@@ -32,6 +37,24 @@ void interactiveScene::setColor(const QString color)
     } else if (color == "Chwast") {
         myPenColor = QColor(Qt::red);
     }
+}
+
+void interactiveScene::saveMask()
+{
+    QString path = currentPath;
+    qsizetype last = currentPath.lastIndexOf("/", -1);
+
+    if(front.save(path.insert(last + 1, "mask_"))) qDebug() << "zapisało";
+
+    qDebug() << path;
+//    qDebug() << last;
+
+}
+
+void interactiveScene::nextImage()
+{
+    saveMask();
+
 }
 
 void interactiveScene::setVisibility(QString visibility)
@@ -70,6 +93,7 @@ void interactiveScene::redo()
 void interactiveScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton && image){
+        modified = true;
         undoStack.push_back(front);
 
         QPainter painter(&front);

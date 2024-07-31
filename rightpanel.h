@@ -31,11 +31,13 @@ public slots:
 
 private slots:
     colorClicked();
+    nextClicked();
     toggleView();
 
 signals:
     void colorSignal(const QString &colorName);
     void visibilitySignal(const QString &visibility);
+    nextButtonClicked();
     undoSignal();
     redoSignal();
     dirtSignal();

@@ -51,6 +51,8 @@ rightPanel::rightPanel(QWidget *parent = nullptr) : QWidget(parent),brushSizeSli
     connect(undo, &QPushButton::clicked, this, &rightPanel::undoSignal);
     connect(redo, &QPushButton::clicked, this, &rightPanel::redoSignal);
 
+    connect(nextButton, &QPushButton::clicked, this, &rightPanel::nextClicked);
+
 }
 
 rightPanel::~rightPanel()
@@ -64,6 +66,11 @@ rightPanel::colorClicked()
     if (button) {
         emit colorSignal(button->text());
     }
+}
+
+rightPanel::nextClicked()
+{
+    emit nextButtonClicked();
 }
 
 rightPanel::toggleView()

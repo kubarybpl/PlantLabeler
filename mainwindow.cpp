@@ -48,14 +48,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(toolBox, &rightPanel::undoSignal, scene, &interactiveScene::undo);
     connect(toolBox, &rightPanel::redoSignal, scene, &interactiveScene::redo);
 
-}
-// Definicja slotu displayImage
-MainWindow::displayImage(const QString &imagePath) {
-//    scene->clear();
-//    QPixmap image(imagePath);
-//    QGraphicsPixmapItem *item = scene->addPixmap(image);
-//    scene->setImageItem(item);
-//    scene->setSceneRect(image.rect());
+    connect(toolBox, &rightPanel::nextButtonClicked, scene, &interactiveScene::saveMask);
+
 
 }
 

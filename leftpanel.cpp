@@ -2,9 +2,9 @@
 #include "leftpanel.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-//#include "opencv/cv.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <filesystem>
 
 using namespace cv;
 
@@ -39,43 +39,36 @@ leftPanel::~leftPanel()
 leftPanel::onTreeViewClicked(const QModelIndex &index)
 {
     QString filePath = model->filePath(index);
+
     emit imageSelected(filePath);
-//    qDebug << model->filePath(index);
 
 }
 
 leftPanel::onVideoButton()
 {
-
-//    Mat srcImage = imread("C:\\Users\\Kuba\\Desktop\\picture.png");
-//    if(!srcImage.data) ;
-//            imshow("srcImage", srcImage);
-
-
-
     QString videoName = QFileDialog::getOpenFileName(this, "Wybierz plik wideo","E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/09.2023","AVI(*.avi)");
-    // Jeżeli jest już taki folder -> poinformuj/zrzuć
 
     if (!videoName.isEmpty()) {
         qDebug("weszło w !folderPath.isEmpty()");
         QFileInfo fileInfo(videoName);
         QString folderName = fileInfo.baseName();
         QString targetFolder = "E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/test";
-        QString folderDir = targetFolder + "/" + folderName;
-        QDir().mkdir(folderDir);
+        QString newFolderDir = targetFolder + "/" + folderName;
 
-        QDir dir(folderDir);
-        if(dir.exists()){
-            qDebug("Folder już istnieje, przerwij proces");
-                QMessageBox::warning(this, "Błąd", "Folder do tego pliku już istnieje.");
-        }
+        // Jeżeli jest już taki folder -> poinformuj/zrzuć
+        for (const auto &entry : std::filesystem::directory_iterator(targetFolder.toStdString()))
+            if(entry.path() == std::filesystem::path(newFolderDir.toStdString())){
+                QMessageBox::warning(this, "Błąd", "Taki Folder już istnieje");
+                return 0;
+            }
+
+        QDir().mkdir(newFolderDir);
 
         cv::VideoCapture video(videoName.toStdString());
         int frameCount = 0;
         cv::Mat frame;
         while(video.isOpened()){
             video >> frame;
-
 
             if(frame.empty()){
                 // wyświetlić komiunikat
@@ -84,7 +77,7 @@ leftPanel::onVideoButton()
             }
 //            qDebug() << "Przeszło łapanie klatek";
             if(frameCount % 50 == 0){
-                QString imagePath = folderDir + "/" + QString::number(frameCount) + ".jpg";
+                QString imagePath = newFolderDir + "/" + folderName.last(19) + "_frame" + QString::number(frameCount) + ".png";
                 imwrite(imagePath.toStdString(), frame);
                 //qDebug().nospace() << "Zapisało jako: " << imagePath.toStdString();
             }
@@ -92,7 +85,6 @@ leftPanel::onVideoButton()
             frameCount++;
         }
         video.release();
-//        qDebug() << "wyszło z łapania klatek";
     }
 }
 
