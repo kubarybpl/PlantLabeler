@@ -10,9 +10,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow),area(new drawingArea(this))
-//    ,graphicsView(new QGraphicsView(this))
-//    , scene(new interactiveScene(this))
+    , ui(new Ui::MainWindow), graphicsView(new QGraphicsView(this)), scene(new interactiveScene(this))
 {
     ui->setupUi(this);
 
@@ -26,45 +24,34 @@ MainWindow::MainWindow(QWidget *parent)
     rightPanel *toolBox= new rightPanel(this);
 
     mainLayout->addWidget(leftWidget);
-    //-----
 
-    mainLayout->addStretch(1);
-    mainLayout->addWidget(area);
-    mainLayout->addStretch(1);
-
-    //----
-//    mainLayout->addWidget(graphicsView);
+    mainLayout->addWidget(graphicsView);
 
     mainLayout->addWidget(toolBox);
 
-//    graphicsView->setScene(scene);
+    graphicsView->setScene(scene);
 //    graphicsView->setScene(nullptr);
 
-//    mainLayout->setStretchFactor(graphicsView, 1);
+    mainLayout->setStretchFactor(graphicsView, 1);
 
     //Dodawanie do Widgetu Layoutu
     centralWidget->setLayout(mainLayout);
     //Ustawianie
     setCentralWidget(centralWidget);
 
-//    connect(leftWidget, &leftPanel::imageSelected, this, &MainWindow::displayImage);
-    connect(leftWidget, &leftPanel::imageSelected, this, &MainWindow::loadImage);
+    connect(leftWidget, &leftPanel::imageSelected, scene, &interactiveScene::setImageItem);
 
-//    connect(toolBox, &rightPanel::undoSignal, scene, &interactiveScene::undo);
-//    connect(toolBox, &rightPanel::redoSignal, scene, &interactiveScene::redo);
+    connect(toolBox, &rightPanel::colorSignal,  scene, &interactiveScene::setColor);
+    connect(toolBox, &rightPanel::visibilitySignal,  scene, &interactiveScene::setVisibility);
+    connect(scene, &interactiveScene::changeButton, toolBox, &rightPanel::changeButton);
 
-}
-// Definicja slotu displayImage
-MainWindow::displayImage(const QString &imagePath) {
-//    scene->clear();
-//    QPixmap image(imagePath);
-//    QGraphicsPixmapItem *item = scene->addPixmap(image);
-//    scene->setImageItem(item);
-//    scene->setSceneRect(image.rect());
-}
+    connect(toolBox, &rightPanel::undoSignal, scene, &interactiveScene::undo);
+    connect(toolBox, &rightPanel::redoSignal, scene, &interactiveScene::redo);
 
-MainWindow::loadImage(const QString &imagePath) {
-    area->setImage(imagePath);
+    connect(toolBox, &rightPanel::nextButtonClicked, scene, &interactiveScene::nextImage);
+    connect(toolBox, &rightPanel::previousButtonClicked, scene, &interactiveScene::previousImage);
+
+
 }
 
 MainWindow::~MainWindow()

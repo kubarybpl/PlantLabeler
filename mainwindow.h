@@ -28,12 +28,6 @@ private:
     Ui::MainWindow *ui;
     QGraphicsView *graphicsView;
     interactiveScene *scene;
-    drawingArea* area;
-
-
-private slots:
-    displayImage(const QString &imagePath);
-    loadImage(const QString &imagePath);
 };
 
 #endif // MAINWINDOW_H
