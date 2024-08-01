@@ -10,6 +10,7 @@
 #include <QGraphicsPathItem>
 #include <QStack>
 #include <QGraphicsSceneWheelEvent>
+#include <QPainter>
 
 class interactiveScene : public QGraphicsScene
 {
@@ -22,6 +23,7 @@ public:
     void setColor(QString color);
     void saveMask();
     void nextImage();
+    void previousImage();
 
 public slots:
     void setVisibility(QString visibility);

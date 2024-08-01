@@ -1,11 +1,8 @@
 #include "interactivescene.h"
 #include <QPainter>
 #include <qdebug.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <QString>
-
-using namespace cv;
+#include <QImage>
 
 interactiveScene::interactiveScene(QObject *parent = nullptr)
     : QGraphicsScene(parent), isDrawing(0), image(nullptr),  frontItem(nullptr),myPenWidth(5), myPenColor(Qt::red),
@@ -17,21 +14,26 @@ void interactiveScene::setImageItem(const QString &imagePath)
     qDebug() << imagePath;
     this->clear();
     currentPath = imagePath;
-    QPixmap pixmapBackground(imagePath);
-    image = this->addPixmap(QPixmap(imagePath));
-    this->setSceneRect(pixmapBackground.rect());
 
-    front = QPixmap(this->width(),this->height());
-    front.fill(Qt::transparent);
-    frontItem = this->addPixmap(front);
-    frontItem->setOpacity(0.3);
+    if(imagePath.lastIndexOf("mask_") != -1){
+        qDebug() << "AAAAaaaaAAAA";
+    }
+    else {
+        QPixmap pixmapBackground(imagePath);
+        image = this->addPixmap(QPixmap(imagePath));
+        this->setSceneRect(pixmapBackground.rect());
 
+        front = QPixmap(this->width(),this->height());
+        front.fill(Qt::transparent);
+        frontItem = this->addPixmap(front);
+        frontItem->setOpacity(0.3);
+    }
 }
 
 void interactiveScene::setColor(const QString color)
 {
     if (color == "Ziemia") {
-        myPenColor = QColor(121, 92, 50);
+        myPenColor = QColor(Qt::transparent);
     } else if (color == "Roślina") {
         myPenColor = QColor(Qt::green);
     } else if (color == "Chwast") {
@@ -44,17 +46,44 @@ void interactiveScene::saveMask()
     QString path = currentPath;
     qsizetype last = currentPath.lastIndexOf("/", -1);
 
-    if(front.save(path.insert(last + 1, "mask_"))) qDebug() << "zapisało";
+    QImage image = front.toImage();
+    QImage maskImage(front.size(), QImage::Format_Indexed8);
+    QVector<QRgb> colorTable{QColor(Qt::transparent).rgba(), QColor(Qt::green).rgb(), QColor(Qt::red).rgb()};
+    maskImage.setColorTable(colorTable);
 
-    qDebug() << path;
-//    qDebug() << last;
+    maskImage.fill(Qt::transparent);
+    for (int y = 0; y < maskImage.height(); ++y) {
+        for (int x = 0; x < maskImage.width(); ++x) {
+            QColor color = image.pixelColor(x, y);
+            int index;
+
+            if (color == QColor(Qt::green)) {
+                index = 2;
+            } else if (color == QColor(Qt::red)) {
+                index = 1;
+            } else {
+                index = 0;
+            }
+
+            maskImage.setPixel(x, y, index);
+        }
+    }
+
+    if(maskImage.save(path.insert(last + 1, "mask_"))) qDebug() << "zapisało";
+//    if(front.save(path.insert(last + 1, "mask_"))) qDebug() << "zapisało";
 
 }
 
 void interactiveScene::nextImage()
 {
-    saveMask();
+    if(image){
+        saveMask();
+    }
+}
 
+void interactiveScene::previousImage()
+{
+    qDebug() << "asdadada";
 }
 
 void interactiveScene::setVisibility(QString visibility)
@@ -98,6 +127,11 @@ void interactiveScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
         QPainter painter(&front);
         painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        if(myPenColor == QColor(Qt::transparent))
+            painter.setCompositionMode(QPainter::CompositionMode_Clear);
+        else
+            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
         painter.drawPoint(event->scenePos());
         frontItem->setPixmap(front);
 
@@ -111,6 +145,11 @@ void interactiveScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     if((event->buttons() & Qt::LeftButton) && isDrawing){
         QPainter painter(&front);
         painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        if(myPenColor == QColor(Qt::transparent))
+            painter.setCompositionMode(QPainter::CompositionMode_Clear);
+        else
+            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
         painter.drawLine(lastPoint, event->scenePos().toPoint());
         frontItem->setPixmap(front);
         lastPoint = event->scenePos();

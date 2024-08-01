@@ -5,7 +5,7 @@
 
 
 rightPanel::rightPanel(QWidget *parent = nullptr) : QWidget(parent),brushSizeSlider(new QSlider(Qt::Horizontal)),
-    undo(new QPushButton("Cofnij")), redo(new QPushButton("Przywróć")), nextButton(new QPushButton("Dalej")),
+    undo(new QPushButton("Cofnij")), redo(new QPushButton("Przywróć")), nextButton(new QPushButton("Dalej")), previousButton(new QPushButton("Wstecz")),
     dirtButton(new(QPushButton)),plantButton(new(QPushButton)),weedButton(new(QPushButton)), maskVisibiltyButton(new(QPushButton)),
     backgroundVisibilityButton(new(QPushButton))
 {
@@ -35,11 +35,16 @@ rightPanel::rightPanel(QWidget *parent = nullptr) : QWidget(parent),brushSizeSli
 
     rightLayout->addStretch();
 
-    QHBoxLayout *hLayout = new QHBoxLayout;
-    hLayout->addWidget(undo);
-    hLayout->addWidget(redo);
-    rightLayout->addLayout(hLayout);
-    rightLayout->addWidget(nextButton);
+    QHBoxLayout *undoRedoLayout = new QHBoxLayout;
+    undoRedoLayout->addWidget(undo);
+    undoRedoLayout->addWidget(redo);
+    rightLayout->addLayout(undoRedoLayout);
+
+    QHBoxLayout *nextImageLayout = new QHBoxLayout;
+    nextImageLayout->addWidget(previousButton);
+    nextImageLayout->addWidget(nextButton);
+    nextImageLayout->addStrut(50);
+    rightLayout->addLayout(nextImageLayout);
 
     connect(dirtButton, &QPushButton::clicked, this, &rightPanel::colorClicked);
     connect(plantButton, &QPushButton::clicked, this, &rightPanel::colorClicked);
@@ -52,6 +57,7 @@ rightPanel::rightPanel(QWidget *parent = nullptr) : QWidget(parent),brushSizeSli
     connect(redo, &QPushButton::clicked, this, &rightPanel::redoSignal);
 
     connect(nextButton, &QPushButton::clicked, this, &rightPanel::nextClicked);
+    connect(previousButton, &QPushButton::clicked, this, &rightPanel::previousButtonClicked);
 
 }
 
@@ -70,7 +76,11 @@ rightPanel::colorClicked()
 
 rightPanel::nextClicked()
 {
-    emit nextButtonClicked();
+    QPushButton *button = qobject_cast<QPushButton *>(sender());
+    if(button->text() =="Dalej")
+        emit nextButtonClicked();
+    else
+        emit previousButtonClicked();
 }
 
 rightPanel::toggleView()

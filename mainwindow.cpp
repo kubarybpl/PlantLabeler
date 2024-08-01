@@ -48,7 +48,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(toolBox, &rightPanel::undoSignal, scene, &interactiveScene::undo);
     connect(toolBox, &rightPanel::redoSignal, scene, &interactiveScene::redo);
 
-    connect(toolBox, &rightPanel::nextButtonClicked, scene, &interactiveScene::saveMask);
+    connect(toolBox, &rightPanel::nextButtonClicked, scene, &interactiveScene::nextImage);
+    connect(toolBox, &rightPanel::previousButtonClicked, scene, &interactiveScene::previousImage);
 
 
 }

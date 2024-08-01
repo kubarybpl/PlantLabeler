@@ -20,6 +20,7 @@ private:
     QPushButton *undo;
     QPushButton *redo;
     QPushButton *nextButton;
+    QPushButton *previousButton;
     QPushButton *dirtButton;
     QPushButton *plantButton;
     QPushButton *weedButton;
@@ -38,6 +39,7 @@ signals:
     void colorSignal(const QString &colorName);
     void visibilitySignal(const QString &visibility);
     nextButtonClicked();
+    previousButtonClicked();
     undoSignal();
     redoSignal();
     dirtSignal();
