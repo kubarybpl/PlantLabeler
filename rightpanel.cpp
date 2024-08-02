@@ -12,6 +12,7 @@ rightPanel::rightPanel(QWidget *parent = nullptr) : QWidget(parent),brushSizeSli
     this->setFixedWidth(250);
     QVBoxLayout *rightLayout = new QVBoxLayout(this);
 
+    brushSizeSlider->setSliderPosition(10);
     rightLayout->addWidget(brushSizeSlider);
 
     QHBoxLayout *visibilityButtonsLayout = new QHBoxLayout;
@@ -45,6 +46,8 @@ rightPanel::rightPanel(QWidget *parent = nullptr) : QWidget(parent),brushSizeSli
     nextImageLayout->addWidget(nextButton);
     nextImageLayout->addStrut(50);
     rightLayout->addLayout(nextImageLayout);
+
+    connect(brushSizeSlider, &QSlider::valueChanged, this, &rightPanel::sliderChanged);
 
     connect(dirtButton, &QPushButton::clicked, this, &rightPanel::colorClicked);
     connect(plantButton, &QPushButton::clicked, this, &rightPanel::colorClicked);

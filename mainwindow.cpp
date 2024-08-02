@@ -8,9 +8,8 @@
 #include <leftpanel.h>
 #include <rightpanel.h>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow), graphicsView(new QGraphicsView(this)), scene(new interactiveScene(this))
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow),
+    graphicsView(new QGraphicsView(this)), zoom(1.0)
 {
     ui->setupUi(this);
 
@@ -25,12 +24,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     mainLayout->addWidget(leftWidget);
 
+    scene = new interactiveScene(graphicsView);
+    graphicsView->setScene(scene);
+    setCursor();
+//    graphicsView->setCursor(Qt::PointingHandCursor);
     mainLayout->addWidget(graphicsView);
 
     mainLayout->addWidget(toolBox);
-
-    graphicsView->setScene(scene);
-//    graphicsView->setScene(nullptr);
 
     mainLayout->setStretchFactor(graphicsView, 1);
 
@@ -41,8 +41,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(leftWidget, &leftPanel::imageSelected, scene, &interactiveScene::setImageItem);
 
-    connect(toolBox, &rightPanel::colorSignal,  scene, &interactiveScene::setColor);
-    connect(toolBox, &rightPanel::visibilitySignal,  scene, &interactiveScene::setVisibility);
+//    connect(toolBox, &rightPanel::sliderChanged, this, &MainWindow::setCursor);
+
+
+    connect(toolBox, &rightPanel::sliderChanged, scene, &interactiveScene::setBrushSize);
+    connect(toolBox, &rightPanel::colorSignal, scene, &interactiveScene::setColor);
+//    connect(toolBox, &rightPanel::sliderChanged, this, &MainWindow::setBrushSize);
+//    connect(toolBox, &rightPanel::colorSignal, this, &MainWindow::setBrushColor);
+
+    connect(toolBox, &rightPanel::visibilitySignal, scene, &interactiveScene::setVisibility);
     connect(scene, &interactiveScene::changeButton, toolBox, &rightPanel::changeButton);
 
     connect(toolBox, &rightPanel::undoSignal, scene, &interactiveScene::undo);
@@ -64,13 +71,31 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
         const double scaleFactor = 1.15; // Define the scale factor
         if (event->angleDelta().y() > 0) {
             graphicsView->scale(scaleFactor, scaleFactor); // Zoom in
-
+            zoom *= scaleFactor;
         } else {
             graphicsView->scale(1.0 / scaleFactor, 1.0 / scaleFactor); // Zoom out
+            zoom /= scaleFactor;
         }
         event->accept();
     } else {
 //        QGraphicsView::wheelEvent(event); // Pass the event to the base class
     }
+    setCursor();
+}
 
+void MainWindow::setCursor()
+{
+    int size = scene->getPen()->width() * zoom;
+    QPixmap pixmap(size, size);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(scene->getPen()->brush());
+    painter.setOpacity(0.1);
+    painter.drawEllipse(0, 0, size, size);
+    painter.end();
+
+    QCursor cursor(pixmap);
+    graphicsView->setCursor(cursor);
 }

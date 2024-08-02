@@ -20,10 +20,12 @@ public:
     void setImageItem(const QString &imagePath);
     void undo();
     void redo();
+    void setBrushSize(int size);
     void setColor(QString color);
     void saveMask();
     void nextImage();
     void previousImage();
+    QPen* getPen();
 
 public slots:
     void setVisibility(QString visibility);
@@ -35,6 +37,8 @@ protected:
     void drawLineTo(const QPoint &endPoint);
 
 private:
+    QGraphicsView *parent;
+    void updateCursor();
     bool isDrawing;
     QString currentPath;
     QGraphicsPixmapItem *image;
@@ -42,8 +46,7 @@ private:
     QPixmap front;
     QStack<QPixmap> undoStack;
     QStack<QPixmap> redoStack;
-    int myPenWidth;
-    QColor myPenColor;
+    QPen pen;
 
     QPointF lastPoint;
     bool modified;

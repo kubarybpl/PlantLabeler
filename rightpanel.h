@@ -38,6 +38,7 @@ private slots:
 signals:
     void colorSignal(const QString &colorName);
     void visibilitySignal(const QString &visibility);
+    void sliderChanged(int size);
     nextButtonClicked();
     previousButtonClicked();
     undoSignal();

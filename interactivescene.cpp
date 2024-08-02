@@ -3,10 +3,12 @@
 #include <qdebug.h>
 #include <QString>
 #include <QImage>
+#include <QCursor>
+#include <QGraphicsView>
 
 interactiveScene::interactiveScene(QObject *parent = nullptr)
-    : QGraphicsScene(parent), isDrawing(0), image(nullptr),  frontItem(nullptr),myPenWidth(5), myPenColor(Qt::red),
-    modified(false)
+    : QGraphicsScene(parent), isDrawing(0), image(nullptr), frontItem(nullptr),
+    modified(false), pen(Qt::red, 10, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin)
 {}
 
 void interactiveScene::setImageItem(const QString &imagePath)
@@ -33,12 +35,13 @@ void interactiveScene::setImageItem(const QString &imagePath)
 void interactiveScene::setColor(const QString color)
 {
     if (color == "Ziemia") {
-        myPenColor = QColor(Qt::transparent);
+        pen.setColor(QColor(Qt::transparent));
     } else if (color == "Roślina") {
-        myPenColor = QColor(Qt::green);
+        pen.setColor(QColor(Qt::green));
     } else if (color == "Chwast") {
-        myPenColor = QColor(Qt::red);
+        pen.setColor(QColor(Qt::red));
     }
+
 }
 
 void interactiveScene::saveMask()
@@ -86,6 +89,11 @@ void interactiveScene::previousImage()
     qDebug() << "asdadada";
 }
 
+QPen *interactiveScene::getPen()
+{
+    return &pen;
+}
+
 void interactiveScene::setVisibility(QString visibility)
 {
     if(image){
@@ -119,15 +127,26 @@ void interactiveScene::redo()
     }
 }
 
+void interactiveScene::setBrushSize(int size)
+{
+    pen.setWidth(size);
+}
+
+void interactiveScene::updateCursor()
+{
+
+}
+
 void interactiveScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton && image){
+
         modified = true;
         undoStack.push_back(front);
 
         QPainter painter(&front);
-        painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        if(myPenColor == QColor(Qt::transparent))
+        painter.setPen(pen);
+        if(pen.color() == Qt::transparent)
             painter.setCompositionMode(QPainter::CompositionMode_Clear);
         else
             painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
@@ -142,10 +161,11 @@ void interactiveScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void interactiveScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+    updateCursor();
     if((event->buttons() & Qt::LeftButton) && isDrawing){
         QPainter painter(&front);
-        painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        if(myPenColor == QColor(Qt::transparent))
+        painter.setPen(pen);
+        if(pen.color() == Qt::transparent)
             painter.setCompositionMode(QPainter::CompositionMode_Clear);
         else
             painter.setCompositionMode(QPainter::CompositionMode_SourceOver);

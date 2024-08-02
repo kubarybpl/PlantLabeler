@@ -28,6 +28,12 @@ private:
     Ui::MainWindow *ui;
     QGraphicsView *graphicsView;
     interactiveScene *scene;
+    int myPenWidth;
+    QColor myPenColor;
+    double zoom;
+
+    void setCursor();
+
 };
 
 #endif // MAINWINDOW_H
