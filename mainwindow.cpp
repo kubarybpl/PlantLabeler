@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     scene = new interactiveScene(graphicsView);
     graphicsView->setScene(scene);
     setCursor();
-//    graphicsView->setCursor(Qt::PointingHandCursor);
+
     mainLayout->addWidget(graphicsView);
 
     mainLayout->addWidget(toolBox);
@@ -41,13 +41,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(leftWidget, &leftPanel::imageSelected, scene, &interactiveScene::setImageItem);
 
-//    connect(toolBox, &rightPanel::sliderChanged, this, &MainWindow::setCursor);
+    connect(scene, &interactiveScene::changeCursor, this, &MainWindow::setCursor);
 
 
     connect(toolBox, &rightPanel::sliderChanged, scene, &interactiveScene::setBrushSize);
     connect(toolBox, &rightPanel::colorSignal, scene, &interactiveScene::setColor);
-//    connect(toolBox, &rightPanel::sliderChanged, this, &MainWindow::setBrushSize);
-//    connect(toolBox, &rightPanel::colorSignal, this, &MainWindow::setBrushColor);
 
     connect(toolBox, &rightPanel::visibilitySignal, scene, &interactiveScene::setVisibility);
     connect(scene, &interactiveScene::changeButton, toolBox, &rightPanel::changeButton);
@@ -77,8 +75,6 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
             zoom /= scaleFactor;
         }
         event->accept();
-    } else {
-//        QGraphicsView::wheelEvent(event); // Pass the event to the base class
     }
     setCursor();
 }
@@ -89,10 +85,11 @@ void MainWindow::setCursor()
     QPixmap pixmap(size, size);
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing);
 
-    painter.setPen(Qt::NoPen);
+    painter.setPen(Qt::black);
     painter.setBrush(scene->getPen()->brush());
-    painter.setOpacity(0.1);
+    painter.setOpacity(0.2);
     painter.drawEllipse(0, 0, size, size);
     painter.end();
 

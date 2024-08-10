@@ -6,7 +6,7 @@
 #include <QCursor>
 #include <QGraphicsView>
 
-interactiveScene::interactiveScene(QObject *parent = nullptr)
+interactiveScene::interactiveScene(QGraphicsView *parent = nullptr)
     : QGraphicsScene(parent), isDrawing(0), image(nullptr), frontItem(nullptr),
     modified(false), pen(Qt::red, 10, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin)
 {}
@@ -41,7 +41,7 @@ void interactiveScene::setColor(const QString color)
     } else if (color == "Chwast") {
         pen.setColor(QColor(Qt::red));
     }
-
+    setCursor();
 }
 
 void interactiveScene::saveMask()
@@ -105,6 +105,11 @@ void interactiveScene::setVisibility(QString visibility)
     }
 }
 
+void interactiveScene::setCursor()
+{
+    emit changeCursor();
+}
+
 
 void interactiveScene::undo()
 {
@@ -130,12 +135,10 @@ void interactiveScene::redo()
 void interactiveScene::setBrushSize(int size)
 {
     pen.setWidth(size);
+    setCursor();
 }
 
-void interactiveScene::updateCursor()
-{
 
-}
 
 void interactiveScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -161,7 +164,6 @@ void interactiveScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void interactiveScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    updateCursor();
     if((event->buttons() & Qt::LeftButton) && isDrawing){
         QPainter painter(&front);
         painter.setPen(pen);

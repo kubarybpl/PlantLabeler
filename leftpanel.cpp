@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <filesystem>
+#include <customproxymodel.h>
 
 using namespace cv;
 
@@ -13,15 +14,22 @@ leftPanel::leftPanel(QWidget *parent = nullptr) : QWidget(parent)
     leftLayout = new QVBoxLayout(this);
     videoButton = new QPushButton("Dodaj");
     videoButton->setFixedSize(100,30);
-//    this->setFixedWidth(250);
-    this->resize(400, this->width());
+    setMinimumWidth(500);
+//    resize(650,100);
     leftLayout->addWidget(videoButton);
 
+    model = new QFileSystemModel;
+    model->setRootPath("E://One Drive//OneDrive - Politechnika Warszawska//Magisterka//test");
+
     treeView = new QTreeView(this);
-    model = new QFileSystemModel(this);
-    model->setRootPath("E:\\One Drive\\OneDrive - Politechnika Warszawska\\Magisterka\\test");
-    treeView->setModel(model);
-    treeView->setRootIndex(model->index("E:\\One Drive\\OneDrive - Politechnika Warszawska\\Magisterka\\test"));
+    proxyModel = new customProxyModel(this);
+    proxyModel->setSourceModel(model);
+
+    treeView->setModel(proxyModel);
+    treeView->setRootIndex(proxyModel->mapFromSource(model->index("E://One Drive//OneDrive - Politechnika Warszawska//Magisterka//test")));
+    treeView->hideColumn(1);
+    treeView->hideColumn(2);
+    treeView->hideColumn(3);
     treeView->resize(300,150);
 
     leftLayout->addWidget(treeView);
@@ -35,11 +43,26 @@ leftPanel::~leftPanel()
 {
 
 }
-
 leftPanel::onTreeViewClicked(const QModelIndex &index)
 {
-    QString filePath = model->filePath(index);
+    //    QString filePath = model->filePath(index);
+    //    QString filePath = model->sourceModel()->filePath(index);
+    //    QString filePath = model->getBaseModel()->filePath(index);
 
+    //    auto baseIndex = model->mapToSource(index);
+    //    auto filePath = model->getBaseModel()->filePath(baseIndex);
+
+    //    auto fileModel = dynamic_cast<QFileSystemModel*>(model->sourceModel());
+    //    auto filePath = fileModel->filePath(baseIndex);
+
+    //    auto filePath = model->getBaseModel()->filePath(baseIndex);
+    //    QString filePath = model->getBaseModel()->index(baseIndex);
+
+    //    QString filePath = fileModel->filePath(baseIndex);
+    //    auto baseM = model->getBaseModel();
+
+    QModelIndex sourceIndex = proxyModel->mapToSource(index);
+    QString filePath = model->filePath(sourceIndex);
     emit imageSelected(filePath);
 
 }
@@ -50,7 +73,7 @@ leftPanel::onVideoButton()
 
     if (!videoName.isEmpty()) {
         qDebug("weszło w !folderPath.isEmpty()");
-        QFileInfo fileInfo(videoName);
+            QFileInfo fileInfo(videoName);
         QString folderName = fileInfo.baseName();
         QString targetFolder = "E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/test";
         QString newFolderDir = targetFolder + "/" + folderName;
@@ -75,7 +98,7 @@ leftPanel::onVideoButton()
                 qDebug("frame is empty");
                 break;
             }
-//            qDebug() << "Przeszło łapanie klatek";
+            //            qDebug() << "Przeszło łapanie klatek";
             if(frameCount % 50 == 0){
                 QString imagePath = newFolderDir + "/" + folderName.last(19) + "_frame" + QString::number(frameCount) + ".png";
                 imwrite(imagePath.toStdString(), frame);

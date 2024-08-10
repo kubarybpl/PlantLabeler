@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QFileDialog>
+#include <customproxymodel.h>
 
 class leftPanel : public QWidget
 {
@@ -15,15 +16,21 @@ class leftPanel : public QWidget
 public:
     leftPanel(QWidget *parent);
     ~leftPanel();
-    QTreeView *treeView;
-    QFileSystemModel * model;
-    QVBoxLayout *leftLayout;
-    QPushButton *videoButton;
+
 private slots:
     onVideoButton();
     onTreeViewClicked(const QModelIndex &index);
+
 signals:
     imageSelected(QString &filePath);
+
+private:
+    QTreeView *treeView;
+    QVBoxLayout *leftLayout;
+    QPushButton *videoButton;
+    QFileSystemModel *model;
+    customProxyModel *proxyModel;
+
 };
 
 #endif // LEFTPANEL_H

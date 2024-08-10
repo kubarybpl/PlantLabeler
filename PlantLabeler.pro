@@ -9,7 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    drawingarea.cpp \
+    customproxymodel.cpp \
     interactivescene.cpp \
     leftpanel.cpp \
     main.cpp \
@@ -17,7 +17,7 @@ SOURCES += \
     rightpanel.cpp
 
 HEADERS += \
-    drawingarea.h \
+    customproxymodel.h \
     interactivescene.h \
     leftpanel.h \
     mainwindow.h \
@@ -59,3 +59,6 @@ DEPENDPATH += D:\opencv\build\include
 #        -lopencv_imgproc490 \
 #        -lopencv_imgcodecs490 \
 #        -lopencv_videoio490
+
+RESOURCES += \
+    icons.qrc

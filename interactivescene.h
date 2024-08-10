@@ -16,7 +16,7 @@ class interactiveScene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    interactiveScene(QObject *parent);
+    interactiveScene(QGraphicsView *parent);
     void setImageItem(const QString &imagePath);
     void undo();
     void redo();
@@ -29,6 +29,7 @@ public:
 
 public slots:
     void setVisibility(QString visibility);
+    void setCursor();
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
@@ -37,8 +38,7 @@ protected:
     void drawLineTo(const QPoint &endPoint);
 
 private:
-    QGraphicsView *parent;
-    void updateCursor();
+//    QGraphicsView *parent;
     bool isDrawing;
     QString currentPath;
     QGraphicsPixmapItem *image;
@@ -53,6 +53,7 @@ private:
 
 signals:
     void changeButton(QString &msg);
+    void changeCursor();
 };
 
 #endif // INTERACTIVESCENE_H

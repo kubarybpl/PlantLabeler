@@ -13,6 +13,7 @@ rightPanel::rightPanel(QWidget *parent = nullptr) : QWidget(parent),brushSizeSli
     QVBoxLayout *rightLayout = new QVBoxLayout(this);
 
     brushSizeSlider->setSliderPosition(10);
+    brushSizeSlider->setMinimum(1);
     rightLayout->addWidget(brushSizeSlider);
 
     QHBoxLayout *visibilityButtonsLayout = new QHBoxLayout;

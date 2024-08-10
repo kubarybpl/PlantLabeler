@@ -6,7 +6,6 @@
 #include <QGraphicsView>
 #include "interactivescene.h"
 #include <QWheelEvent>
-#include <drawingarea.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,6 +19,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void setCursor();
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
@@ -31,8 +31,6 @@ private:
     int myPenWidth;
     QColor myPenColor;
     double zoom;
-
-    void setCursor();
 
 };
 
