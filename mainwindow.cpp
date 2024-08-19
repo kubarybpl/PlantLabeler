@@ -5,22 +5,16 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QComboBox>
-#include <leftpanel.h>
-#include <rightpanel.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow),
-    graphicsView(new QGraphicsView(this)), zoom(1.0)
+    graphicsView(new QGraphicsView(this)), zoom(1.0),leftWidget(new leftPanel(this)),
+    toolBox(new rightPanel(this))
 {
     ui->setupUi(this);
 
-    //środek
-    //Tworzenie centralnego widgetu
-    QWidget *centralWidget = new QWidget(this);
-    //Tworzenie Layoutu i dodawanie do niego widgetu
-    QHBoxLayout *mainLayout = new QHBoxLayout;
 
-    leftPanel *leftWidget = new leftPanel(this);
-    rightPanel *toolBox= new rightPanel(this);
+    QWidget *centralWidget = new QWidget(this);
+    QHBoxLayout *mainLayout = new QHBoxLayout;
 
     mainLayout->addWidget(leftWidget);
 
@@ -32,17 +26,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     mainLayout->addWidget(toolBox);
 
-    mainLayout->setStretchFactor(graphicsView, 1);
+    mainLayout->setStretchFactor(graphicsView, 0.8);
 
-    //Dodawanie do Widgetu Layoutu
     centralWidget->setLayout(mainLayout);
-    //Ustawianie
     setCentralWidget(centralWidget);
 
     connect(leftWidget, &leftPanel::imageSelected, scene, &interactiveScene::setImageItem);
 
     connect(scene, &interactiveScene::changeCursor, this, &MainWindow::setCursor);
-
 
     connect(toolBox, &rightPanel::sliderChanged, scene, &interactiveScene::setBrushSize);
     connect(toolBox, &rightPanel::colorSignal, scene, &interactiveScene::setColor);
@@ -53,9 +44,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(toolBox, &rightPanel::undoSignal, scene, &interactiveScene::undo);
     connect(toolBox, &rightPanel::redoSignal, scene, &interactiveScene::redo);
 
-    connect(toolBox, &rightPanel::nextButtonClicked, scene, &interactiveScene::nextImage);
-    connect(toolBox, &rightPanel::previousButtonClicked, scene, &interactiveScene::previousImage);
-
+    connect(toolBox, &rightPanel::nextButtonClicked, this, &MainWindow::nextImage);
+    connect(toolBox, &rightPanel::previousButtonClicked, this, &MainWindow::previousImage);
 
 }
 
@@ -66,7 +56,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::wheelEvent(QWheelEvent *event) {
     if (event->modifiers() & Qt::ControlModifier) {
-        const double scaleFactor = 1.15; // Define the scale factor
+        const double scaleFactor = 1.15;
         if (event->angleDelta().y() > 0) {
             graphicsView->scale(scaleFactor, scaleFactor); // Zoom in
             zoom *= scaleFactor;
@@ -77,6 +67,30 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
         event->accept();
     }
     setCursor();
+}
+
+void MainWindow::nextImage()
+{
+    // Load actual path
+    QString path = scene->getPath();
+    if(!path.isEmpty()){
+        // Get next path, load image, select file in tree
+        QString nextFilePath = leftWidget->getNextFileFromTree(path);
+        scene->nextImage(nextFilePath);
+        leftWidget->selectModelInTree(nextFilePath);
+    }
+}
+
+void MainWindow::previousImage()
+{
+    // Load actual path
+    QString path = scene->getPath();
+    if(!path.isEmpty()){
+        // Get next path, load image, select file in tree
+        QString nextFilePath = leftWidget->getNextFileFromTree(path, 1);
+        scene->nextImage(nextFilePath);
+        leftWidget->selectModelInTree(nextFilePath);
+    }
 }
 
 void MainWindow::setCursor()

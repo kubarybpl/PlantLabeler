@@ -5,20 +5,11 @@
 
 customProxyModel::customProxyModel(QWidget *parent = nullptr) : QSortFilterProxyModel()
 
-{
-//    baseModel = new QFileSystemModel;
-//    baseModel->setRootPath("E:\\One Drive\\OneDrive - Politechnika Warszawska\\Magisterka\\test");
-//    this->setSourceModel(baseModel);
-
-}
-
-const QModelIndex customProxyModel::getIndex(QString path)
-{
-//    return mapFromSource(baseModel->index(path));
-}
+{}
 
 bool customProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
+    // Takes filename from QModelIndex source_parent if contains "mask_" return false.
     QModelIndex baseIndex = sourceModel()->index(source_row, 0, source_parent);
     QString fileName = sourceModel()->data(baseIndex,QFileSystemModel::FileNameRole).toString();
 
@@ -30,46 +21,73 @@ bool customProxyModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
 
 QVariant customProxyModel::data(const QModelIndex &index, int role) const
 {
-//    if(role == Qt::DecorationRole){
-//        QString fileName = model->data(index, QFileSystemModel::FileNameRole).toString();
-
-//        QModelIndex baseIndex = mapToSource(index);
-
-//        QDir dir(model->filePath(baseIndex));
-//        QString maskFile = "mask_" + fileName;
-//        if(dir.exists(maskFile)){
-//            return QIcon(":/masks/mask.png");
-//        }
-//        else
-
-//            return QIcon(":/masks/C:/Users/Kuba/Downloads/mask.png");
-//    }
-    //    return QSortFilterProxyModel::data(index, role);
-    ////////////////////
-
     if(role == Qt::DecorationRole){
-
+        // Casting model for processing
         auto* fileSystemModel = dynamic_cast<QFileSystemModel*>(sourceModel());
 
-        QModelIndex sourceIndex = mapToSource(index);                   // zmapowany do żródła indeks
+        // If file is .png or .jpg check if mask file exists. If exists provides green mask icon, otherwise black
+        QModelIndex sourceIndex = mapToSource(index);
         QFileInfo fileInfo = fileSystemModel->fileInfo(sourceIndex);
         QString extension = fileInfo.suffix().toLower();
         QString name = fileInfo.fileName();
+        QDir dir(fileInfo.path());
 
         if (extension == "png" || extension == "jpg") {
-            QDir dir(fileInfo.path());
-
             if(dir.exists("mask_" + name))
                 return QIcon(":/masks/C:/Users/Kuba/Downloads/mask.png");
             else
                 return QIcon(":/masks/C:/Users/Kuba/Downloads/maskBlack.png");
         }
+
+        // Iterates over all files in directory, if all files have a mask provides green mask icon for directory, otherwise red mask
+        QDir folderDir(fileInfo.absoluteFilePath());
+        if(fileInfo.isDir()){
+            QDirIterator it(fileInfo.absoluteFilePath());
+
+            while(it.hasNext()) {
+                it.next();
+                if(it.fileName() == "." || it.fileName() == "..")
+                    continue;
+
+                if(!it.fileName().contains("mask_")){
+                    if(!folderDir.exists("mask_" + it.fileName())){
+                        return QIcon(":/masks/C:/Users/Kuba/Downloads/folderRed.png");
+                    }
+                }
+            }
+            return QIcon(":/masks/C:/Users/Kuba/Downloads/folder.png");
+        }
     }
     return QSortFilterProxyModel::data(index, role);
 }
 
-customProxyModel::setBaseModel(QFileSystemModel *model)
+
+QString customProxyModel::getFile(const QModelIndex &index, int mode)
 {
-    this->setSourceModel(model);
+    // Casting model for processing
+    auto* fileSystemModel = dynamic_cast<QFileSystemModel*>(sourceModel());
+
+    // Mapping index from source, getting parent, counting files in parent dir,
+    // returning next/previous file if exists, otherwise return empty string
+    QModelIndex proxyModel = this->mapFromSource(index);
+    QModelIndex proxyModelParent = proxyModel.parent();
+
+    int rows = this->rowCount(proxyModelParent);
+    int i = proxyModel.row();
+    if((i < rows && !mode) || (i > 0 && mode)){
+        QModelIndex nextProxyIndex;
+        if(!mode)
+            nextProxyIndex = this->index(i + 1, 0, proxyModelParent);
+        else
+            nextProxyIndex = this->index(i - 1, 0, proxyModelParent);
+
+        QModelIndex nextSourceIndex = this->mapToSource(nextProxyIndex);
+
+        return fileSystemModel->filePath(nextSourceIndex);
+    }
+    else{
+        qDebug() << "koniec plików";
+            return QString();
+    }
 }
 

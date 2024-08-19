@@ -7,6 +7,11 @@
 #include <filesystem>
 #include <customproxymodel.h>
 
+// ROOT_PATH is target directory for saved frames
+// FRAME_INTERVAL defines number of frames between every saved image
+#define ROOT_PATH               "E://One Drive//OneDrive - Politechnika Warszawska//Magisterka//test"
+#define FRAME_INTERVAL          50
+
 using namespace cv;
 
 leftPanel::leftPanel(QWidget *parent = nullptr) : QWidget(parent)
@@ -14,12 +19,13 @@ leftPanel::leftPanel(QWidget *parent = nullptr) : QWidget(parent)
     leftLayout = new QVBoxLayout(this);
     videoButton = new QPushButton("Dodaj");
     videoButton->setFixedSize(100,30);
-    setMinimumWidth(500);
-//    resize(650,100);
+    setMinimumWidth(300);
+    setMaximumWidth(450);
+
     leftLayout->addWidget(videoButton);
 
     model = new QFileSystemModel;
-    model->setRootPath("E://One Drive//OneDrive - Politechnika Warszawska//Magisterka//test");
+    model->setRootPath(ROOT_PATH);
 
     treeView = new QTreeView(this);
     proxyModel = new customProxyModel(this);
@@ -27,6 +33,8 @@ leftPanel::leftPanel(QWidget *parent = nullptr) : QWidget(parent)
 
     treeView->setModel(proxyModel);
     treeView->setRootIndex(proxyModel->mapFromSource(model->index("E://One Drive//OneDrive - Politechnika Warszawska//Magisterka//test")));
+
+    // Show only filename column
     treeView->hideColumn(1);
     treeView->hideColumn(2);
     treeView->hideColumn(3);
@@ -43,28 +51,25 @@ leftPanel::~leftPanel()
 {
 
 }
+
+QString leftPanel::getNextFileFromTree(QString path, int mode)
+{
+    QModelIndex index = model->index(path);
+    return proxyModel->getFile(index, mode);
+}
+
+leftPanel::selectModelInTree(QString path)
+{
+    QModelIndex index = model->index(path);
+    treeView->setCurrentIndex(proxyModel->mapFromSource(index));
+    treeView->selectionModel()->select(proxyModel->mapFromSource(index), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+}
+
 leftPanel::onTreeViewClicked(const QModelIndex &index)
 {
-    //    QString filePath = model->filePath(index);
-    //    QString filePath = model->sourceModel()->filePath(index);
-    //    QString filePath = model->getBaseModel()->filePath(index);
-
-    //    auto baseIndex = model->mapToSource(index);
-    //    auto filePath = model->getBaseModel()->filePath(baseIndex);
-
-    //    auto fileModel = dynamic_cast<QFileSystemModel*>(model->sourceModel());
-    //    auto filePath = fileModel->filePath(baseIndex);
-
-    //    auto filePath = model->getBaseModel()->filePath(baseIndex);
-    //    QString filePath = model->getBaseModel()->index(baseIndex);
-
-    //    QString filePath = fileModel->filePath(baseIndex);
-    //    auto baseM = model->getBaseModel();
-
     QModelIndex sourceIndex = proxyModel->mapToSource(index);
     QString filePath = model->filePath(sourceIndex);
     emit imageSelected(filePath);
-
 }
 
 leftPanel::onVideoButton()
@@ -72,13 +77,13 @@ leftPanel::onVideoButton()
     QString videoName = QFileDialog::getOpenFileName(this, "Wybierz plik wideo","E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/09.2023","AVI(*.avi)");
 
     if (!videoName.isEmpty()) {
-        qDebug("weszło w !folderPath.isEmpty()");
-            QFileInfo fileInfo(videoName);
+        // Make new directory with name of chosen video file
+        QFileInfo fileInfo(videoName);
         QString folderName = fileInfo.baseName();
-        QString targetFolder = "E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/test";
+        QString targetFolder = ROOT_PATH;
         QString newFolderDir = targetFolder + "/" + folderName;
 
-        // Jeżeli jest już taki folder -> poinformuj/zrzuć
+        // If directory already exists - break
         for (const auto &entry : std::filesystem::directory_iterator(targetFolder.toStdString()))
             if(entry.path() == std::filesystem::path(newFolderDir.toStdString())){
                 QMessageBox::warning(this, "Błąd", "Taki Folder już istnieje");
@@ -87,6 +92,7 @@ leftPanel::onVideoButton()
 
         QDir().mkdir(newFolderDir);
 
+        // Load video and save frames with interval defined by FRAME_INTERVAL
         cv::VideoCapture video(videoName.toStdString());
         int frameCount = 0;
         cv::Mat frame;
@@ -94,15 +100,13 @@ leftPanel::onVideoButton()
             video >> frame;
 
             if(frame.empty()){
-                // wyświetlić komiunikat
                 qDebug("frame is empty");
                 break;
             }
-            //            qDebug() << "Przeszło łapanie klatek";
-            if(frameCount % 50 == 0){
+
+            if(frameCount % FRAME_INTERVAL == 0){
                 QString imagePath = newFolderDir + "/" + folderName.last(19) + "_frame" + QString::number(frameCount) + ".png";
                 imwrite(imagePath.toStdString(), frame);
-                //qDebug().nospace() << "Zapisało jako: " << imagePath.toStdString();
             }
 
             frameCount++;
