@@ -18,6 +18,21 @@ leftPanel::leftPanel(QWidget *parent = nullptr) : QWidget(parent)
 {
     leftLayout = new QVBoxLayout(this);
     videoButton = new QPushButton("Dodaj");
+
+    QString buttonStyle = R"(
+    QPushButton {
+    background-color: #f0f0f0;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 2px;
+}
+    QPushButton:hover {
+    background-color: #e1e1e1;
+})";
+
+    videoButton->setStyleSheet(buttonStyle);
+
     videoButton->setFixedSize(100,30);
     setMinimumWidth(300);
     setMaximumWidth(450);

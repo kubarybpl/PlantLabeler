@@ -34,9 +34,9 @@ QVariant customProxyModel::data(const QModelIndex &index, int role) const
 
         if (extension == "png" || extension == "jpg") {
             if(dir.exists("mask_" + name))
-                return QIcon(":/masks/C:/Users/Kuba/Downloads/mask.png");
+                return QIcon(":/icons/mask.png");
             else
-                return QIcon(":/masks/C:/Users/Kuba/Downloads/maskBlack.png");
+                return QIcon(":/icons/maskBlack.png");
         }
 
         // Iterates over all files in directory, if all files have a mask provides green mask icon for directory, otherwise red mask
@@ -51,11 +51,11 @@ QVariant customProxyModel::data(const QModelIndex &index, int role) const
 
                 if(!it.fileName().contains("mask_")){
                     if(!folderDir.exists("mask_" + it.fileName())){
-                        return QIcon(":/masks/C:/Users/Kuba/Downloads/folderRed.png");
+                        return QIcon(":/icons/folderRed.png");
                     }
                 }
             }
-            return QIcon(":/masks/C:/Users/Kuba/Downloads/folder.png");
+            return QIcon(":/icons/folder.png");
         }
     }
     return QSortFilterProxyModel::data(index, role);

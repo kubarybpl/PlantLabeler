@@ -12,6 +12,9 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QComboBox>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+
 
 /**
  * @class rightPanel
@@ -44,6 +47,13 @@ private:
     QPushButton *weedButton;                    ///< Button to apply red color.
     QPushButton *maskVisibiltyButton;           ///< Button to toggle mask visibility.
     QPushButton *backgroundVisibilityButton;    ///< Button to toggle background visibility.
+    QVBoxLayout *rightLayout;
+    QHBoxLayout *visibilityButtonsLayout;
+    QHBoxLayout *colorLayout;
+    QHBoxLayout *undoRedoLayout;
+    QHBoxLayout *nextImageLayout;
+
+    setupUI();
 
 public slots:
     /**

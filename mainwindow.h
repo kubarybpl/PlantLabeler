@@ -13,7 +13,7 @@
 #include <QWheelEvent>
 #include <leftpanel.h>
 #include <rightpanel.h>
-
+#include "neuralnetworkdialog.h"
 /**
  *  @class MainWindow
  *  @brief This class extends QMainWindow, integreates other interactiveScene, leftPanel, and rightPanel class togethers
@@ -48,12 +48,19 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    Ui::MainWindow *ui;             ///< Pointer to the UI setup class.
-    rightPanel *toolBox;            ///< Pointer to the right panel.
-    leftPanel *leftWidget;          ///< Pointer to the left panel.
-    QGraphicsView *graphicsView;    ///< View that displays the interactiveScene.
-    interactiveScene *scene;        ///< Scene which handles image loading and interaction.
-    double zoom;                    ///< Current zoom.
+    Ui::MainWindow *ui;                 ///< Pointer to the UI setup class.
+    rightPanel *toolBox;                ///< Pointer to the right panel.
+    leftPanel *leftWidget;              ///< Pointer to the left panel.
+    QGraphicsView *graphicsView;        ///< View that displays the interactiveScene.
+    interactiveScene *scene;            ///< Scene which handles image loading and interaction.
+    double zoom;                        ///< Current zoom.
+//    QMenuBar *menuBar;              ///< Menu bar to open neural network interface
+    neuralNetworkDialog *neuralDialog;
+
+    /**
+     * @brief Opens neural network training interface.
+     */
+    openNeuralDialog();
 
     /**
      * @brief Gets next file path from leftWidget and passes it to interactiveScene, selects this file in tree view.

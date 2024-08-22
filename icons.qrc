@@ -1,8 +1,9 @@
 <RCC>
-    <qresource prefix="/masks">
-        <file>C:/Users/Kuba/Downloads/maskBlack.png</file>
-        <file>C:/Users/Kuba/Downloads/mask.png</file>
-        <file>C:/Users/Kuba/Downloads/folderRed.png</file>
-        <file>C:/Users/Kuba/Downloads/folder.png</file>
+    <qresource prefix="/icons">
+        <file>folder.png</file>
+        <file>folderRed.png</file>
+        <file>mask.png</file>
+        <file>plant.png</file>
+        <file>maskBlack.png</file>
     </qresource>
 </RCC>

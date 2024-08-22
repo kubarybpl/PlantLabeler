@@ -5,13 +5,19 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QComboBox>
+#include <QIcon>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow),
     graphicsView(new QGraphicsView(this)), zoom(1.0),leftWidget(new leftPanel(this)),
-    toolBox(new rightPanel(this))
+    toolBox(new rightPanel(this)), neuralDialog(new neuralNetworkDialog)
 {
     ui->setupUi(this);
 
+    QMenu *menu = new QMenu(this);
+    menu = menuBar()->addMenu(tr("&Doucz sieć"));
+    QAction *newAct = new QAction(tr("&Uruchom interfejs"), this);
+    connect(newAct, &QAction::triggered, this, &MainWindow::openNeuralDialog);
+    menu->addAction(newAct);
 
     QWidget *centralWidget = new QWidget(this);
     QHBoxLayout *mainLayout = new QHBoxLayout;
@@ -19,17 +25,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     mainLayout->addWidget(leftWidget);
 
     scene = new interactiveScene(graphicsView);
+    graphicsView->setMinimumWidth(680);
+    graphicsView->setMinimumSize(680,420);
     graphicsView->setScene(scene);
     setCursor();
 
     mainLayout->addWidget(graphicsView);
-
     mainLayout->addWidget(toolBox);
 
-    mainLayout->setStretchFactor(graphicsView, 0.8);
+    mainLayout->setStretchFactor(graphicsView, 1);
 
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
+
 
     connect(leftWidget, &leftPanel::imageSelected, scene, &interactiveScene::setImageItem);
 
@@ -67,6 +75,12 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
         event->accept();
     }
     setCursor();
+}
+
+MainWindow::openNeuralDialog()
+{
+    neuralDialog->exec();
+    qDebug() << "klikneło w menu";
 }
 
 void MainWindow::nextImage()
