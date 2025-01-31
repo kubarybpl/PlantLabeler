@@ -117,8 +117,8 @@ void interactiveScene::inference()
         model.eval();
         try {
             torch::Tensor output = model.forward(inputs).toTensor();
-            output = output.squeeze(0);        // [3, H, W] – usuwamy wymiar batch=1
-            torch::Tensor argMaxClasses = output.argmax(0); // [H, W]
+            output = output.squeeze(0);
+            torch::Tensor argMaxClasses = output.argmax(0);
 
             int height = argMaxClasses.size(0);
             int width  = argMaxClasses.size(1);
@@ -153,69 +153,6 @@ void interactiveScene::inference()
                 }
             }
 
-//            qDebug() << "After inference";
-
-//            output = output.squeeze(0);
-//            output = output.permute({1, 2, 0});
-//            output = (output * 255).to(torch::kU8);
-//            qDebug() << "After output processing";
-
-
-//            auto accessor = output.accessor<uint8_t, 3>();
-
-//            qDebug() << accessor.size(0);
-//            qDebug() << accessor.size(1);
-
-//            torch::Tensor tensor = output;
-//            torch::save(tensor, "C:/Users/Kuba/output_qt.pt");
-
-//            QImage coloredImage(accessor.size(1), accessor.size(0), QImage::Format_ARGB32);
-//            for(int i = 0; i < accessor.size(0); i++){
-//                for(int j = 0; j < accessor.size(1); j++){
-//                    QColor color;
-//                    if(accessor[i][j][0] >= accessor[i][j][1] && accessor[i][j][0] >= accessor[i][j][2]) color = Qt::green;
-//                    else if(accessor[i][j][1] >= accessor[i][j][0] && accessor[i][j][1] >= accessor[i][j][2]) color = Qt::transparent;
-//                    else color = Qt::red;
-//                    coloredImage.setPixelColor(j, i, color);
-//                }
-//            }
-
-
-//////////////////////////
-//            QImage output_image(output.size(1), output.size(0), QImage::Format_RGB888);
-
-//            std::memcpy(
-//                output_image.bits(),
-//                output.data_ptr(),
-//                output.numel() * sizeof(uint8_t)
-//                );
-//            qDebug() << "After memcpy";
-//            output_image.save("C:/Users/Kuba/output_qt.png");
-
-//            // Re-create the mask based on indexes
-//            QImage coloredImage(output_image.size(), QImage::Format_ARGB32);
-//            for (int y = 0; y < output_image.height(); ++y) {
-//                for (int x = 0; x < output_image.width(); ++x) {
-
-//                    QRgb pixel = output_image.pixel(x, y);
-//                    QColor color(pixel);
-//                    int red = color.red();   // Pierwsza klasa
-//                    int green = color.green(); // Druga klasa
-//                    int blue = color.blue();   // Trzecia klasa
-
-//                    QColor newColor = Qt::transparent; // Domyślnie przezroczysty
-
-//                    // Zakładamy, że klasa jest reprezentowana przez największą wartość kanału
-//                    if (red >= green && red >= blue) {
-//                        newColor = (red > 0) ? QColor(Qt::red) : Qt::transparent;
-//                    } else if (green > red && green >= blue) {
-//                        newColor = (green > 0) ? QColor(Qt::green) : Qt::transparent;
-//                    }
-
-
-//                    coloredImage.setPixelColor(x, y, newColor);
-
-
             coloredImage.save("C:/Users/Kuba/output_qt.png");
             this->removeItem(frontItem);
 
@@ -228,35 +165,7 @@ void interactiveScene::inference()
             qDebug() << e.what();
             return;
         }
-
-//        model.eval();
-//        try {
-//            torch::Tensor output = model.forward(inputs).toTensor();
-//            qDebug() << "After inference";
-//            // tensor to png
-//            output = output.squeeze(0);
-//            output = output.permute({1, 2, 0});
-//            output = output.clamp(0, 1);
-//            output = (output >= 0.5).to(torch::kU8);
-
-//            cv::Mat output_image(output.size(0), output.size(1), CV_8UC1);
-//            std::memcpy(
-//                (void*)output_image.data,
-//                output.data_ptr(),
-//                sizeof(torch::kU8) * output.numel()
-//                );
-
-//            if (!cv::imwrite("C:/Users/Kuba/output_qt.png", output_image)) {
-//                std::cerr << "Nie można zapisać obrazu: C:/Users/Kuba/output_image.png" << std::endl;
-//                    return;
-//            }
-//        } catch (const c10::Error& e) {
-//            qDebug() << "error during inference\n";
-//            qDebug() << e.what_without_backtrace();
-//            return;
-//        }
     }
-
 }
 
 void interactiveScene::setColor(const QString color)
@@ -448,9 +357,16 @@ void interactiveScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void interactiveScene::wheelEvent(QGraphicsSceneWheelEvent *wheelEvent)
+void interactiveScene::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
-
-
+    if(event->modifiers() & Qt::ControlModifier) {
+        event->accept();
+        return;
+    }
+    if(event->modifiers() & Qt::ShiftModifier){
+        event->accept();
+        return;
+    }
+    else QGraphicsScene::wheelEvent(event);
 }
 
