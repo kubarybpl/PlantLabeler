@@ -2,17 +2,19 @@
 #include "rightpanel.h"
 
 
-rightPanel::rightPanel(QWidget *parent = nullptr) : QWidget(parent),brushSizeSlider(new QSlider(Qt::Horizontal)),
+rightPanel::rightPanel(QWidget *parent = nullptr) : QWidget(parent), brushSizeSlider(new QSlider(Qt::Horizontal)), opacitySlider(new QSlider(Qt::Horizontal)),
     undo(new QPushButton("Cofnij")), redo(new QPushButton("Przywróć")), nextButton(new QPushButton("Dalej")), previousButton(new QPushButton("Wstecz")),
     dirtButton(new(QPushButton)("Ziemia")),plantButton(new(QPushButton)("Roślina")),weedButton(new(QPushButton)("Chwast")), maskVisibiltyButton(new(QPushButton)),
     backgroundVisibilityButton(new(QPushButton)), rightLayout(new QVBoxLayout(this)),visibilityButtonsLayout(new QHBoxLayout),
-    colorLayout(new QHBoxLayout), undoRedoLayout(new QHBoxLayout), nextImageLayout(new QHBoxLayout)
+    colorLayout(new QHBoxLayout), inferenceLayout(new QHBoxLayout), undoRedoLayout(new QHBoxLayout), nextImageLayout(new QHBoxLayout),inferenceButton(new QPushButton("Predykcja")),
+    labelBrush(new QLabel("Wielkość pędzla 10px", this)),labelOpacity(new QLabel("Przezroczystość: 30%", this))
 {
     setupUI();
 
+    connect(brushSizeSlider, &QSlider::valueChanged, this, &rightPanel::brushSliderChanged);
+    connect(opacitySlider, &QSlider::valueChanged, this, &rightPanel::opacitySliderChanged);
 
-    connect(brushSizeSlider, &QSlider::valueChanged, this, &rightPanel::sliderChanged);
-
+    connect(inferenceButton, &QPushButton::clicked, this, &rightPanel::inferenceClicked);
     connect(dirtButton, &QPushButton::clicked, this, &rightPanel::colorClicked);
     connect(plantButton, &QPushButton::clicked, this, &rightPanel::colorClicked);
     connect(weedButton, &QPushButton::clicked, this, &rightPanel::colorClicked);
@@ -33,14 +35,14 @@ rightPanel::~rightPanel()
 
 }
 
-rightPanel::setupUI()
+void rightPanel::setupUI()
 {
     this->setFixedWidth(250);
 
 
     //// Slider
     ///
-    brushSizeSlider->setStyleSheet(R"(
+    QString sliderStyle = R"(
     QSlider::groove:horizontal {
         border: 1px solid #999999;
         height: 8px;
@@ -56,16 +58,37 @@ rightPanel::setupUI()
         margin: -8px 0;
         border-radius: 3px;
     }
-)");
+)";
+
+
+    brushSizeSlider->setStyleSheet(sliderStyle);
     brushSizeSlider->setOrientation(Qt::Horizontal);
     brushSizeSlider->setTickPosition(QSlider::TicksBothSides);
     brushSizeSlider->setTickInterval(5);
-
     brushSizeSlider->setSliderPosition(10);
     brushSizeSlider->setMinimum(1);
     brushSizeSlider->setMaximum(50);
 
+    labelBrush->setAlignment(Qt::AlignCenter);
+    labelBrush->setStyleSheet("font-size: 12px;");
+
+    rightLayout->addWidget(labelBrush);
     rightLayout->addWidget(brushSizeSlider);
+
+
+    opacitySlider->setStyleSheet(sliderStyle);
+    opacitySlider->setOrientation(Qt::Horizontal);
+    opacitySlider->setTickPosition(QSlider::TicksBothSides);
+    opacitySlider->setTickInterval(1);
+    opacitySlider->setSliderPosition(3);
+    opacitySlider->setMinimum(0);
+    opacitySlider->setMaximum(10);
+
+    labelOpacity->setAlignment(Qt::AlignCenter);
+    labelOpacity->setStyleSheet("font-size: 12px;");
+
+    rightLayout->addWidget(labelOpacity);
+    rightLayout->addWidget(opacitySlider);
 
     //// Buttons
     ///
@@ -81,10 +104,10 @@ rightPanel::setupUI()
     background-color: #e1e1e1;
 })";
 
-    maskVisibiltyButton->setText("Ukryj maskę");
+    maskVisibiltyButton->setText("Ukryj maskę [z]");
     maskVisibiltyButton->setStyleSheet(buttonStyle);
 
-    backgroundVisibilityButton->setText("Ukryj tło");
+    backgroundVisibilityButton->setText("Ukryj tło [x]");
     backgroundVisibilityButton->setStyleSheet(buttonStyle);
 
     visibilityButtonsLayout->addWidget(maskVisibiltyButton);
@@ -92,21 +115,19 @@ rightPanel::setupUI()
 
     rightLayout->addLayout(visibilityButtonsLayout);
 
-
     dirtButton->setStyleSheet(buttonStyle);
-//    dirtButton->setText("Ziemia");
-
     plantButton->setStyleSheet(buttonStyle);
-//    plantButton->setText("Roślina");
-
     weedButton->setStyleSheet(buttonStyle);
-//    weedButton->setText("Chwast");
+    inferenceButton->setStyleSheet(buttonStyle);
 
     colorLayout->addWidget(dirtButton);
     colorLayout->addWidget(plantButton);
     colorLayout->addWidget(weedButton);
 
+    inferenceLayout->addWidget(inferenceButton);
+
     rightLayout->addLayout(colorLayout);
+    rightLayout->addLayout(inferenceLayout);
     rightLayout->addStretch();
 
 
@@ -119,22 +140,13 @@ rightPanel::setupUI()
 
     nextButton->setStyleSheet(buttonStyle);
     previousButton->setStyleSheet(buttonStyle);
-    nextImageLayout->addWidget(previousButton);
     nextImageLayout->addWidget(nextButton);
+    nextImageLayout->addWidget(previousButton);
     nextImageLayout->addStrut(50);
     rightLayout->addLayout(nextImageLayout);
-
-
-
-
-
-
-
-
-
 }
 
-rightPanel::colorClicked()
+void rightPanel::colorClicked()
 {
     QPushButton *button = qobject_cast<QPushButton *>(sender());
     if (button) {
@@ -142,7 +154,7 @@ rightPanel::colorClicked()
     }
 }
 
-rightPanel::nextClicked()
+void rightPanel::nextClicked()
 {
     QPushButton *button = qobject_cast<QPushButton *>(sender());
     if(button->text() =="Dalej")
@@ -151,7 +163,7 @@ rightPanel::nextClicked()
         emit previousButtonClicked();
 }
 
-rightPanel::toggleView()
+void rightPanel::toggleView()
 {
     QPushButton *button = qobject_cast<QPushButton *>(sender());
     if(button){
@@ -160,11 +172,31 @@ rightPanel::toggleView()
 
 }
 
-rightPanel::changeButton(QString &msg)
+void rightPanel::inferenceClicked()
 {
-    if(msg == "Ukryj maskę") maskVisibiltyButton->setText("Pokaż maskę");
-            else if(msg == "Pokaż maskę") maskVisibiltyButton->setText("Ukryj maskę");
-            else if(msg == "Ukryj tło") backgroundVisibilityButton->setText("Pokaż tło");
-            else if(msg == "Pokaż tło") backgroundVisibilityButton->setText("Ukryj tło");
+    emit inferenceSignal();
+}
+
+void rightPanel::brushSliderChanged(int size)
+{
+    if(size <= brushSizeSlider->maximum() && size >= brushSizeSlider->minimum()){
+        brushSizeSlider->setValue(size);
+        labelBrush->setText(QString::fromStdString("Wielkość pędzla: " + std::to_string(size) + "px"));
+        emit sizeChanged(size);
+    }
+}
+
+void rightPanel::opacitySliderChanged(int value)
+{
+    labelOpacity->setText(QString::fromStdString("Przezroczystość " + std::to_string(100 - (value * 10)) + "%"));
+    emit opacityChanged(value);
+}
+
+void rightPanel::changeButton(QString &msg)
+{
+    if(msg == "Ukryj maskę [z]") maskVisibiltyButton->setText("Pokaż maskę [z]");
+            else if(msg == "Pokaż maskę [z]") maskVisibiltyButton->setText("Ukryj maskę [z]");
+            else if(msg == "Ukryj tło [x]") backgroundVisibilityButton->setText("Pokaż tło [x]");
+            else if(msg == "Pokaż tło [x]") backgroundVisibilityButton->setText("Ukryj tło [x]");
 }
 

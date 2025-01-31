@@ -41,11 +41,13 @@ public:
      */
     void setCursor();
 
-protected:
     /**
      * @brief Reimplements wheelEvent, so image zoom can be performed.
      */
     void wheelEvent(QWheelEvent *event) override;
+
+protected:
+
 
 private:
     Ui::MainWindow *ui;                 ///< Pointer to the UI setup class.
@@ -60,7 +62,7 @@ private:
     /**
      * @brief Opens neural network training interface.
      */
-    openNeuralDialog();
+    void openNeuralDialog();
 
     /**
      * @brief Gets next file path from leftWidget and passes it to interactiveScene, selects this file in tree view.
@@ -72,6 +74,7 @@ private:
      */
     void previousImage();
 
+    bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif // MAINWINDOW_H

@@ -27,7 +27,7 @@ public:
     /**
      * @brief Constructs a leftPanel widget.
      */
-    leftPanel(QWidget *parent);
+    leftPanel(QWidget *parent = nullptr);
 
     /**
      * @brief Destructor of a leftPanel widget.
@@ -47,19 +47,19 @@ public:
      * @param path
      * @see getNextFileFromTree(QString path);
      */
-    selectModelInTree(QString path);
+    void selectModelInTree(QString path);
 
 private slots:
     /**
      * @brief Slot triggered when the video button is clicked.
      */
-    onVideoButton();
+    void onVideoButton();
 
     /**
      * @brief Slot triggered when an item in the tree view is clicked.
      * @param index The model index of the clicked item.
      */
-    onTreeViewClicked(const QModelIndex &index);
+    void onTreeViewClicked(const QModelIndex &index);
 
 signals:
     /**
@@ -67,7 +67,7 @@ signals:
      * @param filePath The path of the selected image file.
      * @see onTreeViewClicked(const QModelIndex &index)
      */
-    imageSelected(QString &filePath);
+    void imageSelected(QString &filePath);
 
 private:
     QTreeView *treeView;           ///< Tree view widget to display the filesystem.

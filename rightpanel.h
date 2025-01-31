@@ -14,6 +14,7 @@
 #include <QComboBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QLabel>
 
 
 /**
@@ -38,6 +39,7 @@ public:
 
 private:
     QSlider *brushSizeSlider;                   ///< Slider to adjust the brush size.
+    QSlider *opacitySlider;                     ///< Slider to adjust opacity of the mask.
     QPushButton *undo;                          ///< Button to undo the last drawing operation.
     QPushButton *redo;                          ///< Button to restore an undone drawing.
     QPushButton *nextButton;                    ///< Button to navigate to the next image.
@@ -47,36 +49,56 @@ private:
     QPushButton *weedButton;                    ///< Button to apply red color.
     QPushButton *maskVisibiltyButton;           ///< Button to toggle mask visibility.
     QPushButton *backgroundVisibilityButton;    ///< Button to toggle background visibility.
+    QPushButton *inferenceButton;               ///< Button to make interference.
+    QLabel *labelBrush;
+    QLabel *labelOpacity;
+
     QVBoxLayout *rightLayout;
     QHBoxLayout *visibilityButtonsLayout;
     QHBoxLayout *colorLayout;
+    QHBoxLayout *inferenceLayout;
     QHBoxLayout *undoRedoLayout;
     QHBoxLayout *nextImageLayout;
 
-    setupUI();
+    void setupUI();
 
 public slots:
     /**
      * @brief Toogles text on the visibility buttons.
      * @param msg Message with the information what have been changed.
      */
-    changeButton(QString &msg);
+    void changeButton(QString &msg);
+
+    /**
+     * @brief slot to change size of brush.
+     */
+    void brushSliderChanged(int size);
 
 private slots:
     /**
      * @brief Slot triggered on color buttons, emits colorSignal(const QString &colorName) to change brush color.
      */
-    colorClicked();
+    void colorClicked();
 
     /**
      * @brief Slot triggered on nextButton, sends signal to load next image to edit.
      */
-    nextClicked();
+    void nextClicked();
 
     /**
      * @brief Slot triggered on visibilityButton emits visibilitySignal(const QString &visibility).
      */
-    toggleView();
+    void toggleView();
+
+    /**
+     * @brief Slot triggered on interference buttons, emits interference signal to predict mask.
+     */
+    void inferenceClicked();
+
+    /**
+     * @brief Signal to change opacity of the mask.
+     */
+    void opacitySliderChanged(int value);
 
 signals:
     /**
@@ -92,30 +114,34 @@ signals:
     void visibilitySignal(const QString &visibility);
 
     /**
-     * @brief Signal to change size of brush.
+     * @brief Signal to change opacity of the mask.
      */
-    void sliderChanged(int size);
+    void sizeChanged(int value);
+
+    /**
+     * @brief Signal to change opacity of the mask.
+     */
+    void opacityChanged(int value);
 
     /**
      * @brief Signal to change image to edit.
      */
-    nextButtonClicked();
+    void nextButtonClicked();
 
     /**
      * @brief Signal to change image to edit.
      */
-    previousButtonClicked();
+    void previousButtonClicked();
 
     /**
      * @brief Signal to undo last drawing operation.
      */
-    undoSignal();
+    void undoSignal();
 
     /**
      * @brief Signal to restore undone drawing operation.
      */
-    redoSignal();
-
+    void redoSignal();
 
     /**
      * @brief Signal emitted for setting transparent brush.
@@ -131,6 +157,11 @@ signals:
      * @brief Signal emitted for setting red brush.
      */
     void weedSignal();
+
+    /**
+     * @brief Signal emitted for interference.
+     */
+    void inferenceSignal();
 };
 
 #endif // RIGHTPANEL_H

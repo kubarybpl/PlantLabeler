@@ -10,11 +10,12 @@
 // ROOT_PATH is target directory for saved frames
 // FRAME_INTERVAL defines number of frames between every saved image
 #define ROOT_PATH               "E://One Drive//OneDrive - Politechnika Warszawska//Magisterka//test"
-#define FRAME_INTERVAL          50
+//#define ROOT_PATH               "E://One Drive//OneDrive - Politechnika Warszawska//Magisterka//nuclei"
+#define FRAME_INTERVAL          10 // Take n-th frame from video to be processed
 
 using namespace cv;
 
-leftPanel::leftPanel(QWidget *parent = nullptr) : QWidget(parent)
+leftPanel::leftPanel(QWidget *parent) : QWidget(parent)
 {
     leftLayout = new QVBoxLayout(this);
     videoButton = new QPushButton("Dodaj");
@@ -47,7 +48,7 @@ leftPanel::leftPanel(QWidget *parent = nullptr) : QWidget(parent)
     proxyModel->setSourceModel(model);
 
     treeView->setModel(proxyModel);
-    treeView->setRootIndex(proxyModel->mapFromSource(model->index("E://One Drive//OneDrive - Politechnika Warszawska//Magisterka//test")));
+    treeView->setRootIndex(proxyModel->mapFromSource(model->index(ROOT_PATH)));
 
     // Show only filename column
     treeView->hideColumn(1);
@@ -73,21 +74,21 @@ QString leftPanel::getNextFileFromTree(QString path, int mode)
     return proxyModel->getFile(index, mode);
 }
 
-leftPanel::selectModelInTree(QString path)
+void leftPanel::selectModelInTree(QString path)
 {
     QModelIndex index = model->index(path);
     treeView->setCurrentIndex(proxyModel->mapFromSource(index));
     treeView->selectionModel()->select(proxyModel->mapFromSource(index), QItemSelectionModel::Select | QItemSelectionModel::Rows);
 }
 
-leftPanel::onTreeViewClicked(const QModelIndex &index)
+void leftPanel::onTreeViewClicked(const QModelIndex &index)
 {
     QModelIndex sourceIndex = proxyModel->mapToSource(index);
     QString filePath = model->filePath(sourceIndex);
     emit imageSelected(filePath);
 }
 
-leftPanel::onVideoButton()
+void leftPanel::onVideoButton()
 {
     QString videoName = QFileDialog::getOpenFileName(this, "Wybierz plik wideo","E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/09.2023","AVI(*.avi)");
 
@@ -102,7 +103,7 @@ leftPanel::onVideoButton()
         for (const auto &entry : std::filesystem::directory_iterator(targetFolder.toStdString()))
             if(entry.path() == std::filesystem::path(newFolderDir.toStdString())){
                 QMessageBox::warning(this, "Błąd", "Taki Folder już istnieje");
-                return 0;
+                return;
             }
 
         QDir().mkdir(newFolderDir);
@@ -121,7 +122,7 @@ leftPanel::onVideoButton()
 
             if(frameCount % FRAME_INTERVAL == 0){
                 QString imagePath = newFolderDir + "/" + folderName.last(19) + "_frame" + QString::number(frameCount) + ".png";
-                imwrite(imagePath.toStdString(), frame);
+                cv::imwrite(imagePath.toStdString(), frame);
             }
 
             frameCount++;

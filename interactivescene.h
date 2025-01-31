@@ -16,6 +16,13 @@
 #include <QStack>
 #include <QGraphicsSceneWheelEvent>
 #include <QPainter>
+#include <QKeyEvent>
+
+
+#undef slots // Prevent "slots" names from qt and libtorch conflict
+#include <torch/script.h>
+#include<torch/torch.h>
+#define slots Q_SLOTS
 
 /**
  * @class interactiveScene
@@ -38,6 +45,13 @@ public:
      * @param imagePath Path to image file to set.
      */
     void setImageItem(const QString &imagePath);
+
+    /**
+     * Predicts mask for actual image.
+     * @brief Predicts mask.
+     * @param imagePath Path to image file to set.
+     */
+    void inference();
 
     /**
      * @brief sets the color of the pen used for drawing.
@@ -85,12 +99,17 @@ public:
      */
     void redo();
 
-
-/**
+    /**
      * @brief Change size of the brush.
      * @param size The new width of brush.
      */
     void setBrushSize(int size);
+
+    /**
+     * @brief Change size of the brush.
+     * @param value Opacity in scale 0-10, later convertet to percents.
+     */
+    void changeMaskOpacity(int value);
 
 public slots:
     /**
@@ -122,6 +141,9 @@ protected:
      */
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
+    void wheelEvent(QGraphicsSceneWheelEvent *wheelEvent) override;
+
+
 private:
     bool isDrawing;                     ///< Flag to check if currently drawing.
     QString currentPath;                ///< Path of the currently loaded image.
@@ -131,9 +153,13 @@ private:
     QStack<QPixmap> undoStack;          ///< Stack for undo operations.
     QStack<QPixmap> redoStack;          ///< Stack for redo operations.
     QPen pen;                           ///< Pen used for drawing on the image.
+    float opacity;                      ///< Opacity of the mask.
+    bool isZpressed;
+    bool isXpressed;
 
     QPointF lastPoint;                  ///< Last point registered in drawing.
     bool modified;                      ///< Flag to check if file is modified.
+    torch::jit::script::Module model;   ///< Neural network model
 
 signals:
     /**

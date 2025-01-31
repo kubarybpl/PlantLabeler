@@ -21,6 +21,7 @@ SOURCES += \
 
 HEADERS += \
     customproxymodel.h \
+    dataset.h \
     interactivescene.h \
     leftpanel.h \
     mainwindow.h \
@@ -35,17 +36,49 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+############
 
-LIBS += D:\opencv\build\install\x64\mingw\bin\libopencv_core490.dll
-LIBS += D:\opencv\build\install\x64\mingw\bin\libopencv_video490.dll
-LIBS += D:\opencv\build\install\x64\mingw\bin\libopencv_videoio490.dll
-LIBS += D:\opencv\build\install\x64\mingw\bin\libopencv_highgui490.dll
-LIBS += D:\opencv\build\install\x64\mingw\bin\libopencv_imgproc490.dll
-LIBS += D:\opencv\build\install\x64\mingw\bin\libopencv_imgcodecs490.dll
+INCLUDEPATH += D:/libtorch/include
+INCLUDEPATH += D:/libtorch/include/torch/csrc/api/include
+#INCLUDEPATH += D:/libtorch/include/torch/csrc/api/include
+LIBS += D:/libtorch/lib/torch.lib
+LIBS += D:/libtorch/lib/torch_cpu.lib
+LIBS += D:/libtorch/lib/c10.lib
 
-INCLUDEPATH += D:\opencv\build\include
-DEPENDPATH += D:\opencv\build\include
+########################
 
+# Ścieżki do plików nagłówkowych TensorFlow
+
+#INCLUDEPATH += C:/Users/Kuba/tensorflow/bazel-bin/tensorflow/include
+#INCLUDEPATH += C:/Users/Kuba/tensorflow/bazel-bin/tensorflow/include/src
+#INCLUDEPATH += C:/Users/Kuba/tensorflow/bazel-bin
+#INCLUDEPATH += C:/Users/Kuba/tensorflow/bazel-bin/external
+#INCLUDEPATH += C:/Users/Kuba/tensorflow/bazel-tensorflow/external/com_google_protobuf
+#INCLUDEPATH += C:/Users/Kuba/tensorflow/bazel-tensorflow/external/com_google_protobuf/src
+
+#DEPENDPATH += C:/Users/Kuba/tensorflow/bazel-bin/tensorflow
+#DEPENDPATH += C:/Users/Kuba/tensorflow/bazel-bin/tensorflow/cc
+#DEPENDPATH += C:/Users/Kuba/tensorflow/bazel-bin/tensorflow/cc/ops
+
+
+## Ścieżki do bibliotek TensorFlow
+#LIBS += C:/Users/Kuba/tensorflow/bazel-bin/tensorflow/tensorflow.lib
+#LIBS += C:/Users/Kuba/tensorflow/bazel-bin/tensorflow/tensorflow_cc.lib
+
+
+
+
+#########################
+
+LIBS += D:\opencv_MSVC\opencv\build\install\x64\vc16\lib\opencv_core490.lib
+LIBS += D:\opencv_MSVC\opencv\build\install\x64\vc16\lib\opencv_video490.lib
+LIBS += D:\opencv_MSVC\opencv\build\install\x64\vc16\lib\opencv_videoio490.lib
+LIBS += D:\opencv_MSVC\opencv\build\install\x64\vc16\lib\opencv_highgui490.lib
+LIBS += D:\opencv_MSVC\opencv\build\install\x64\vc16\lib\opencv_imgproc490.lib
+LIBS += D:\opencv_MSVC\opencv\build\install\x64\vc16\lib\opencv_imgcodecs490.lib
+
+INCLUDEPATH += D:\opencv_MSVC\opencv\build\include
+DEPENDPATH += D:\opencv_MSVC\opencv\build\include
 
 RESOURCES += \
     icons.qrc
