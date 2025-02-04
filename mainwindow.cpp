@@ -32,8 +32,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     scene = new interactiveScene(graphicsView);
 
-
-
     graphicsView->setMinimumWidth(680);
     graphicsView->setMinimumSize(680,420);
     graphicsView->setScene(scene);

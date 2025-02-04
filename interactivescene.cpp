@@ -359,14 +359,14 @@ void interactiveScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void interactiveScene::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
-    if(event->modifiers() & Qt::ControlModifier) {
-        event->accept();
-        return;
-    }
-    if(event->modifiers() & Qt::ShiftModifier){
-        event->accept();
-        return;
-    }
-    else QGraphicsScene::wheelEvent(event);
+//    if(event->modifiers() & Qt::ControlModifier) {
+//        event->accept();
+//        return;
+//    }
+//    if(event->modifiers() & Qt::ShiftModifier){
+//        event->accept();
+//        return;
+//    }
+//    else QGraphicsScene::wheelEvent(event);
 }
 

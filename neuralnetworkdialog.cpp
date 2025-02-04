@@ -6,7 +6,7 @@
 #include <string>
 #include <utility>
 #include <QFile>
-
+#include <QStringList>
 #include <torch/optim/adam.h>
 #include "dataset.h"
 
@@ -133,9 +133,13 @@ void neuralNetworkDialog::learnButtonClicked()
 
 void neuralNetworkDialog::runButtonClicked()
 {
-    QString scriptPath("C:/Users/Kuba/Magisterka/test.py");
+    QString scriptPath("E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/PlantLabeler/Python/main.py");
+    QStringList scriptList;
+    scriptList << scriptPath << "--data_dir" <<"E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/test" ;
     label->setText("Uruchamianie procesu...");
-    process->start("python", {scriptPath});
+
+    process->start("C:/anaconda3/envs/PyTorch/python", {scriptList});
+
 
     if(process->state() == QProcess::Running){
         label->setText("Skrypt jest już uruchomiony!");
