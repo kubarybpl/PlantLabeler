@@ -21,14 +21,7 @@ interactiveScene::interactiveScene(QGraphicsView *parent = nullptr)
     modified(false), pen(Qt::red, 10, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin),
     currentPath(QString()), opacity(0.3)
 {
-    try {
-        model = torch::jit::load("C:/Users/Kuba/Magisterka/unet_init.pt");
-    }
-    catch (const c10::Error& e) {
-        qDebug() << "error loading the model";
-        qDebug() << e.what_without_backtrace();
-        return;
-    }
+    setModel();
 }
 
 void interactiveScene::setImageItem(const QString &imagePath)
@@ -134,16 +127,17 @@ void interactiveScene::inference()
                     QColor color;
                     switch (classId) {
                     case 0:
-                        // klasa 0 -> czerwony
-                        color = Qt::green;
+                        // klasa 0 -> zielony
+                        color = Qt::transparent;
+
                         break;
                     case 1:
-                        // klasa 1 -> zielony
-                        color = Qt::transparent;
+                        // klasa 1 -> przezroczysty
+                        color = Qt::red;
                         break;
                     case 2:
-                        // klasa 2 -> przezroczysty
-                        color = Qt::red;
+                        // klasa 2 -> czerwony
+                        color = Qt::green;
                         break;
                     default:
                         color = Qt::transparent;
@@ -180,6 +174,20 @@ void interactiveScene::setColor(const QString color)
     setCursor();
 }
 
+void interactiveScene::setModel(QString modelPath)
+{
+    try {
+        torch::Device device(torch::kCPU);
+        model = torch::jit::load(MODEL_PATH + modelPath.toStdString(), device);
+        qDebug() << "Wczytano: " + modelPath;
+    }
+    catch (const c10::Error& e) {
+        qDebug() << "error loading the model";
+        qDebug() << e.what_without_backtrace();
+        return;
+    }
+}
+
 void interactiveScene::saveMask()
 {
     // Make QImage based on QPixmap with indices as colors represented by colorTable
@@ -189,7 +197,7 @@ void interactiveScene::saveMask()
     QImage image = front.toImage();
     QImage maskImage(front.size(), QImage::Format_Indexed8);
 
-    QVector<QRgb> colorTable{QColor(Qt::transparent).rgba(), QColor(Qt::green).rgb(), QColor(Qt::red).rgb()};
+    QVector<QRgb> colorTable{QColor(Qt::transparent).rgba(), QColor(Qt::red).rgb(),QColor(Qt::green).rgb()};
     maskImage.setColorTable(colorTable);
 
     //saving image as a matrix with indexes

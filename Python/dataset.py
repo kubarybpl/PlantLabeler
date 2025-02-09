@@ -1,33 +1,46 @@
 from torch.utils.data import Dataset
+from torchvision import datasets
 from torchvision.transforms import ToTensor
-import matplotlib.pyplot as plt
+import torch
 import os
 import numpy as np
 from skimage.io import imread
-import sys
-import time
-class plantDataset(Dataset):
-    def __init__(self, dataDir, train = True, transform=None, target_transform=None):
-        self.DataDir = dataDir
-        self.transform = transform
-        self.target_transform = target_transform
-        self.Train = train
+from PIL import Image
+
+class plant_dataset(Dataset):
+    def __init__(self, train = True, data_set= set(), validation_dir = ''):
+        self.validation_dir = validation_dir
+        self.data_set = data_set
+        self.train = train
         self.masks = []
         self.images = []   
-        print(self.DataDir)
-        sys.stdout.flush()
-        time.sleep(1)
 
-        for (dirpath, dirnames, filenames) in os.walk(self.DataDir):
-              for filename in filenames:
-                if filename.startswith('mask_') :
-                    maskpath = os.path.join(dirpath, filename)
-                    imagepath = os.path.join(dirpath, filename[5:])
-                    if os.path.exists(imagepath) :
-                        self.images.append(imread(imagepath))
-                        self.masks.append(imread(maskpath))
+        if self.train == True:
+            for image_path in data_set:
+                self.images.append(imread(image_path))
 
+                directory = os.path.dirname(image_path)
+                file_name = os.path.basename(image_path)
+                mask_name = "mask_" + file_name
+                mask_path = os.path.join(directory, mask_name)
+                mask = Image.open(mask_path)
+                mask = mask.convert('P')
+                mask = np.array(mask, dtype=np.uint8)
+                self.masks.append(mask)
 
+        else:            
+            for (dir_path, dirnames, file_names) in os.walk(self.validation_dir):
+                for file_name in file_names:
+                    if file_name.startswith('mask_') :
+                        mask_path = os.path.join(dir_path, file_name)
+                        image_path = os.path.join(dir_path, file_name[5:])
+                        if os.path.exists(image_path) :
+                            self.images.append(imread(image_path))
+                            
+                            mask = Image.open(mask_path)
+                            mask = mask.convert('P')
+                            mask = np.array(mask, dtype=np.uint8)
+                            self.masks.append(mask)
             
     def __len__(self):
         return len(self.images)
@@ -37,6 +50,6 @@ class plantDataset(Dataset):
         mask = self.masks[idx]
         
         image = ToTensor()(image)
-        mask = ToTensor()(mask)
+        mask = torch.from_numpy(mask).long()
 
         return image, mask

@@ -64,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(toolBox, &rightPanel::nextButtonClicked, this, &MainWindow::nextImage);
     connect(toolBox, &rightPanel::previousButtonClicked, this, &MainWindow::previousImage);
 
+    connect(neuralDialog, &neuralNetworkDialog::networkSignal, scene, &interactiveScene::setModel);
 }
 
 MainWindow::~MainWindow()
@@ -139,7 +140,6 @@ void MainWindow::previousImage()
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type()==QEvent::KeyPress) {
-        qDebug() << "przycisk z mainwindow";
         QKeyEvent* key = static_cast<QKeyEvent*>(event);
         if ((key->key()==Qt::Key_Z)) {
             scene->setVisibility("Ukryj maskę [z]");
@@ -149,7 +149,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         return true;
     }
     else if(event->type()==QEvent::KeyRelease) {
-        qDebug() << "przycisk z mainwindow";
 
         QKeyEvent* key = static_cast<QKeyEvent*>(event);
         if ((key->key()==Qt::Key_Z)) {

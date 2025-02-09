@@ -9,7 +9,9 @@
 #include <QProcess>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QPushButton>
+#include <QPlainTextEdit>
 
 #include <opencv2/opencv.hpp>
 
@@ -30,19 +32,27 @@ public:
 private:
     void setupUI();
     void buttonClicked();
-    void learnButtonClicked();
     void runButtonClicked();
     void loadButtonClicked();
 
     QWidget *widget;
     QVBoxLayout *layout;
-    QLabel *label;
+    QHBoxLayout *choseNetworkLayout;
+
+//    QLabel *label;
     QProcess *process;
     QPushButton *learnButton;
     QPushButton *scriptButton;
+    QPushButton *unetButton;
+    QPushButton *mobilenetButton;
+    QPlainTextEdit *outputArea;
 private slots:
     void handleProcessOutput();
     void handleScriptFinished(int exitCode);
+    void changeNetwork();
+
+signals:
+    void networkSignal(QString network);
 
 };
 

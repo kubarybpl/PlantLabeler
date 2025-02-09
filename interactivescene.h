@@ -24,6 +24,8 @@
 #include<torch/torch.h>
 #define slots Q_SLOTS
 
+#define MODEL_PATH "E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/model/"
+
 /**
  * @class interactiveScene
  * @brief The interactiveScene class extends QGraphicsScene to provide functionalities such as drawing, undo/redo, and image masking.
@@ -59,6 +61,9 @@ public:
      * "Ziemia" - ground, "Roślina" - plant, "Chwast" - weed.
      */
     void setColor(QString color);
+
+    void setModel(QString modelPath = "unet_init.pt");
+
 
     /**
      * @brief Saves the mask.

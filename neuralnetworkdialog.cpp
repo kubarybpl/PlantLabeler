@@ -21,22 +21,36 @@ void neuralNetworkDialog::setupUI()
 {
     layout = new QVBoxLayout();
     this->resize(450,350);
-    label = new QLabel(this);
 
-    label->setFrameStyle(QFrame::Panel);\
-    label->setText("Tu będą informacje\no sieciach/danych");
-    label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-    layout->addWidget(label);
+    outputArea = new QPlainTextEdit(this);
+    outputArea->setReadOnly(true);
+    layout->addWidget(outputArea);
+
+//    label = new QLabel(this);
+
+//    label->setFrameStyle(QFrame::Panel);\
+//    label->setText("Tu będą informacje\no sieciach/danych");
+//    label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+//    layout->addWidget(label);
 
     widget = new QWidget(this);
     layout->addWidget(widget);
     this->setLayout(layout);
 
-    learnButton = new QPushButton("Uczenie");
-    layout->addWidget(learnButton);
-
     scriptButton = new QPushButton("Test QProcess");
     layout->addWidget(scriptButton);
+
+    choseNetworkLayout= new QHBoxLayout();
+    unetButton = new QPushButton("UNet");
+    mobilenetButton = new QPushButton("MobileNet");
+    choseNetworkLayout->addWidget(unetButton);
+    choseNetworkLayout->addWidget(mobilenetButton);
+
+    layout->addLayout(choseNetworkLayout);
+//    learnButton = new QPushButton("wybierz sieć");
+//    layout->addWidget(learnButton);
+
+
 
 
     QString buttonStyle = R"(
@@ -52,10 +66,13 @@ void neuralNetworkDialog::setupUI()
 })";
 
     scriptButton->setStyleSheet(buttonStyle);
-    learnButton->setStyleSheet(buttonStyle);
+    mobilenetButton->setStyleSheet(buttonStyle);
+    unetButton->setStyleSheet(buttonStyle);
 
-    connect(learnButton, &QPushButton::clicked, this, &neuralNetworkDialog::learnButtonClicked);
     connect(scriptButton, &QPushButton::clicked, this, &neuralNetworkDialog::runButtonClicked);
+
+    connect(mobilenetButton, &QPushButton::clicked, this, &neuralNetworkDialog::changeNetwork);
+    connect(unetButton, &QPushButton::clicked, this, &neuralNetworkDialog::changeNetwork);
 
     connect(process, &QProcess::readyReadStandardOutput,this, &neuralNetworkDialog::handleProcessOutput);
 
@@ -64,90 +81,26 @@ void neuralNetworkDialog::setupUI()
 
 }
 
-
-void neuralNetworkDialog::learnButtonClicked()
-{
-//    torch::jit::script::Module model;
-//    try {
-//        model = torch::jit::load("C:/Users/Kuba/unet_nuclei_ts.pt");
-//    }
-//    catch (const c10::Error& e) {
-//        qDebug() << "error loading the model\n";
-//        qDebug() << e.what_without_backtrace();
-//        return;
-//    }
-
-//    std::vector<torch::Tensor> parameters;
-//    for (const auto& param : model.parameters()) {
-//        parameters.push_back(param);
-//    }
-
-//    torch::optim::Adam optimizer(parameters, torch::optim::AdamOptions(0.001));
-//    model.train();
-
-//    auto custom_dataset_train = dataset().map(torch::data::transforms::Stack<>());;
-//    auto data_loader_train = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(std::move(custom_dataset_train), 10);
-
-
-//        for (auto& batch : *data_loader_train) {
-//            torch::Tensor data = batch.data;
-//            torch::Tensor target = batch.target.squeeze();
-
-//            auto sizes = data.sizes();
-//            for (size_t i = 0; i < sizes.size(); ++i) {
-//                std::cout << "Wymiar " << i << ": " << sizes[i] << std::endl;
-//            }
-
-//            auto sizesMask = target.sizes();
-//            for (size_t i = 0; i < sizesMask.size(); ++i) {
-//                std::cout << "Wymiar maska " << i << ": " << sizes[i] << std::endl;
-//                }
-
-//            optimizer.zero_grad();
-
-//            std::vector<c10::IValue> inputs;
-//            inputs.push_back(data);
-
-//            torch::Tensor prediction;
-//            try{
-//                qDebug() <<"Before forward";
-//                prediction = model.forward(inputs).toTensor();
-//                qDebug() <<"After forward";
-//            }
-//            catch(const c10::Error &e){
-//                qDebug() << e.what();
-//            }
-
-//            // compute loss
-//            torch::Tensor loss = torch::binary_cross_entropy(prediction, target);
-//            loss.backward();
-//            // update weight
-//            optimizer.step();
-//        }
-
-//        torch::Tensor test = imageToTensor("C:/Users/Kuba/u-net/pytorch_dataset/test/X/image_611.png");
-//        std::vector<c10::IValue> testInputs;
-//        testInputs.push_back(test);
-//        inference(testInputs, model);
-}
-
 void neuralNetworkDialog::runButtonClicked()
 {
     QString scriptPath("E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/PlantLabeler/Python/main.py");
     QStringList scriptList;
-    scriptList << scriptPath << "--data_dir" <<"E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/test" ;
-    label->setText("Uruchamianie procesu...");
+    scriptList << scriptPath << "--data_dir" << "E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/test" ;
+    scriptList << "--model_path" << "E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/model/" ;
+    scriptList << "--csv_path" << "E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/PlantLabeler/Python/data.csv" ;
+    scriptList << "--validation_dir" << "C:/Users/Kuba/Magisterka/Dataset/Test" ;
 
     process->start("C:/anaconda3/envs/PyTorch/python", {scriptList});
 
 
     if(process->state() == QProcess::Running){
-        label->setText("Skrypt jest już uruchomiony!");
+        outputArea->clear();
+        outputArea->appendPlainText("Skrypt jest uruchomiony");
         return;
     }
 
     if(!QFile::exists(scriptPath)){
-        label->setText("Błąd: Nie znaleziono pliku skryptu!");
+        outputArea->appendPlainText("Błąd: Nie znaleziono pliku skryptu!");
         return;
     }
 }
@@ -157,16 +110,28 @@ void neuralNetworkDialog::handleProcessOutput()
 {
     QString output = process->readAllStandardOutput();
     if(!output.isEmpty()){
-        label->setText(output);
-    }}
+        outputArea->appendPlainText(output);
+    }
+}
 
 
 void neuralNetworkDialog::handleScriptFinished(int exitCode)
 {
     if(exitCode == 0){
-        label->setText("Status: Sukces!");
+        outputArea->appendPlainText("Sukces");
     } else {
-        label->setText("Status: Błąd!");
-        label->setText(process->readAllStandardError());
+        outputArea->appendPlainText("Błąd");
+        outputArea->appendPlainText(process->readAllStandardError());
+    }
+}
+
+void neuralNetworkDialog::changeNetwork()
+{
+    QPushButton *button = qobject_cast<QPushButton *>(sender());
+    if(button->text() == "UNet"){
+        emit networkSignal("unet_init.pt");
+    }
+    else if(button->text() == "MobileNet"){
+        emit networkSignal("mobilenet_init.pt");
     }
 }
