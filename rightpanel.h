@@ -50,16 +50,18 @@ private:
     QPushButton *maskVisibiltyButton;           ///< Button to toggle mask visibility.
     QPushButton *backgroundVisibilityButton;    ///< Button to toggle background visibility.
     QPushButton *inferenceButton;               ///< Button to make interference.
-    QLabel *labelBrush;
-    QLabel *labelOpacity;
+    QLabel *labelBrush;                         ///< Label with brush size.
+    QLabel *labelOpacity;                       ///< Label with opacity percentage.
+    QVBoxLayout *rightLayout;                   ///< Layout to store elements on widget.
+    QHBoxLayout *visibilityButtonsLayout;       ///< Layout to store visibility buttons.
+    QHBoxLayout *colorLayout;                   ///< Layout to store color buttons.
+    QHBoxLayout *inferenceLayout;               ///< Layout to store interference button.
+    QHBoxLayout *undoRedoLayout;                ///< Layout to store undo/redo buttons.
+    QHBoxLayout *nextImageLayout;               ///< Layout to store next/previous buttons.
 
-    QVBoxLayout *rightLayout;
-    QHBoxLayout *visibilityButtonsLayout;
-    QHBoxLayout *colorLayout;
-    QHBoxLayout *inferenceLayout;
-    QHBoxLayout *undoRedoLayout;
-    QHBoxLayout *nextImageLayout;
-
+    /**
+     * @brief Set up layouts, buttons, sliders...
+     */
     void setupUI();
 
 public slots:

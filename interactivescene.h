@@ -19,7 +19,7 @@
 #include <QKeyEvent>
 
 
-#undef slots // Prevent "slots" names from qt and libtorch conflict
+#undef slots // Prevent "slots" names from qt and libtorch to conflict
 #include <torch/script.h>
 #include<torch/torch.h>
 #define slots Q_SLOTS
@@ -52,6 +52,7 @@ public:
      * Predicts mask for actual image.
      * @brief Predicts mask.
      * @param imagePath Path to image file to set.
+     * @throws c10::Error
      */
     void inference();
 
@@ -62,8 +63,12 @@ public:
      */
     void setColor(QString color);
 
-    void setModel(QString modelPath = "unet_init.pt");
-
+    /**
+     * @brief setModel Loads chosen model
+     * @param modelFileName
+     * @throws c10::Error
+     */
+    void setModel(QString modelFileName = "unet_init.pt");
 
     /**
      * @brief Saves the mask.
@@ -146,6 +151,10 @@ protected:
      */
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
+    /**
+     * @brief Overriding wheelEvent for hiding/showing mask/background
+     * @param event
+     */
     void wheelEvent(QGraphicsSceneWheelEvent *event) override;
 
 
@@ -159,12 +168,13 @@ private:
     QStack<QPixmap> redoStack;          ///< Stack for redo operations.
     QPen pen;                           ///< Pen used for drawing on the image.
     float opacity;                      ///< Opacity of the mask.
-    bool isZpressed;
-    bool isXpressed;
-
+    bool isZpressed;                    ///< Flag to check if 'z' is pressed
+    bool isXpressed;                    ///< Flag to check if 'x' is pressed
     QPointF lastPoint;                  ///< Last point registered in drawing.
     bool modified;                      ///< Flag to check if file is modified.
     torch::jit::script::Module model;   ///< Neural network model
+
+
 
 signals:
     /**

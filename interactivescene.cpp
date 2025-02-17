@@ -106,17 +106,18 @@ void interactiveScene::inference()
 
         std::vector<torch::jit::IValue> inputs;
         inputs.push_back(tensorImage);
-
+        // Set model to evaluation mode
         model.eval();
         try {
+            // Inference
             torch::Tensor output = model.forward(inputs).toTensor();
+            // Process model output to QImage
             output = output.squeeze(0);
             torch::Tensor argMaxClasses = output.argmax(0);
 
             int height = argMaxClasses.size(0);
             int width  = argMaxClasses.size(1);
             QImage coloredImage(width, height, QImage::Format_ARGB32);
-
 
             auto argMaxAcc = argMaxClasses.accessor<int64_t,2>();
 
@@ -147,7 +148,8 @@ void interactiveScene::inference()
                 }
             }
 
-            coloredImage.save("C:/Users/Kuba/output_qt.png");
+//            coloredImage.save("C:/Users/Kuba/output_qt.png");
+            // Set up new image
             this->removeItem(frontItem);
 
             front = QPixmap::fromImage(coloredImage);

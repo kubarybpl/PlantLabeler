@@ -26,15 +26,6 @@ void neuralNetworkDialog::setupUI()
     outputArea->setReadOnly(true);
     layout->addWidget(outputArea);
 
-//    label = new QLabel(this);
-
-//    label->setFrameStyle(QFrame::Panel);\
-//    label->setText("Tu będą informacje\no sieciach/danych");
-//    label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-//    layout->addWidget(label);
-
-    widget = new QWidget(this);
-    layout->addWidget(widget);
     this->setLayout(layout);
 
     scriptButton = new QPushButton("Test QProcess");
@@ -47,10 +38,6 @@ void neuralNetworkDialog::setupUI()
     choseNetworkLayout->addWidget(mobilenetButton);
 
     layout->addLayout(choseNetworkLayout);
-//    learnButton = new QPushButton("wybierz sieć");
-//    layout->addWidget(learnButton);
-
-
 
 
     QString buttonStyle = R"(
@@ -77,21 +64,20 @@ void neuralNetworkDialog::setupUI()
     connect(process, &QProcess::readyReadStandardOutput,this, &neuralNetworkDialog::handleProcessOutput);
 
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &neuralNetworkDialog::handleScriptFinished);
+            this, &neuralNetworkDialog::handleScriptFinish);
 
 }
 
 void neuralNetworkDialog::runButtonClicked()
 {
+    // Run the script
     QString scriptPath("E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/PlantLabeler/Python/main.py");
     QStringList scriptList;
     scriptList << scriptPath << "--data_dir" << "E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/test" ;
     scriptList << "--model_path" << "E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/model/" ;
     scriptList << "--csv_path" << "E:/One Drive/OneDrive - Politechnika Warszawska/Magisterka/PlantLabeler/Python/data.csv" ;
     scriptList << "--validation_dir" << "C:/Users/Kuba/Magisterka/Dataset/Test" ;
-
     process->start("C:/anaconda3/envs/PyTorch/python", {scriptList});
-
 
     if(process->state() == QProcess::Running){
         outputArea->clear();
@@ -108,6 +94,7 @@ void neuralNetworkDialog::runButtonClicked()
 
 void neuralNetworkDialog::handleProcessOutput()
 {
+    // Reading and writing process output
     QString output = process->readAllStandardOutput();
     if(!output.isEmpty()){
         outputArea->appendPlainText(output);
@@ -115,10 +102,10 @@ void neuralNetworkDialog::handleProcessOutput()
 }
 
 
-void neuralNetworkDialog::handleScriptFinished(int exitCode)
+void neuralNetworkDialog::handleScriptFinish(int exitCode)
 {
     if(exitCode == 0){
-        outputArea->appendPlainText("Sukces");
+        outputArea->appendPlainText("Zakończono wykonywanie skryptu");
     } else {
         outputArea->appendPlainText("Błąd");
         outputArea->appendPlainText(process->readAllStandardError());

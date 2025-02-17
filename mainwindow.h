@@ -56,8 +56,7 @@ private:
     QGraphicsView *graphicsView;        ///< View that displays the interactiveScene.
     interactiveScene *scene;            ///< Scene which handles image loading and interaction.
     double zoom;                        ///< Current zoom.
-//    QMenuBar *menuBar;              ///< Menu bar to open neural network interface
-    neuralNetworkDialog *neuralDialog;
+    neuralNetworkDialog *neuralDialog;  ///< Dialog window to fine-tune/choose neural network
 
     /**
      * @brief Opens neural network training interface.
@@ -74,7 +73,10 @@ private:
      */
     void previousImage();
 
-    bool eventFilter(QObject *obj, QEvent *event);
+    /**
+     * @brief Override function to tak key event and hide/show mask/background
+     */
+    bool eventFilter(QObject *obj, QEvent *event) override;
 };
 
 #endif // MAINWINDOW_H

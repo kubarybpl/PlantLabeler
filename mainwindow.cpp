@@ -110,12 +110,11 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 void MainWindow::openNeuralDialog()
 {
     neuralDialog->exec();
-    qDebug() << "klikneło w menu";
 }
 
 void MainWindow::nextImage()
 {
-    // Load actual path
+    // Load actual image path
     QString path = scene->getPath();
     if(!path.isEmpty()){
         // Get next path, load image, select file in tree
@@ -139,6 +138,7 @@ void MainWindow::previousImage()
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
+    // If 'z' pressed hide mask, if 'x' pressed hide background
     if (event->type()==QEvent::KeyPress) {
         QKeyEvent* key = static_cast<QKeyEvent*>(event);
         if ((key->key()==Qt::Key_Z)) {
@@ -148,8 +148,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
         return true;
     }
+    // On released show again
     else if(event->type()==QEvent::KeyRelease) {
-
         QKeyEvent* key = static_cast<QKeyEvent*>(event);
         if ((key->key()==Qt::Key_Z)) {
             scene->setVisibility("Pokaż maskę [z]");

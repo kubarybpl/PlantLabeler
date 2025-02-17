@@ -87,7 +87,7 @@ QString customProxyModel::getFile(const QModelIndex &index, int mode)
     }
     else{
         qDebug() << "koniec plików";
-            return QString();
+        return QString();
     }
 }
 
